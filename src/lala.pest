@@ -1,0 +1,88 @@
+program = _{ SOI ~ "\n"* ~ (stmt ~ "\n"+)* ~ stmt? ~ EOI }
+
+stmt = _{ fun_decl | expr | command } 
+
+params = {ident+}
+body = {(stmt ~ "\n"*)+ }
+fun_decl = {"fun" ~ ident ~ "=" ~ params ~
+"{" ~ "\n"* ~ body ~ "}"}
+
+expr = {
+    assn
+  | monadic
+  | dyadic
+  | app
+  | ident
+  | matrix
+  | terms
+}
+
+app_param = {
+	ident
+	| term
+}
+app = { "(" ~ ident ~ app_param* ~ ")" }
+
+monadic = { verb ~ expr }
+
+dyadic = { (monadic | terms | ident ) ~ verb ~ expr }
+
+assn = { "let" ~ ident ~ "=" ~ expr }
+
+matrix = {
+    (terms ~ ";")+ ~ terms ~ ";"?
+}
+
+vector = { terms ~ ";"?}
+
+terms = { term+ }
+
+term = _{
+    decimal
+  | integer
+  | "(" ~ expr ~ ")"
+}
+
+verb = {
+    "#" // rank
+
+  | "?" // inverse
+
+  | "rref" // rref
+
+  | "%" // transpose
+
+  | "det" // determinant
+
+  | "@" // dot prod
+
+  | "++" // matrix addition
+
+  | "**" // elem wise multiplication
+
+  | "!" // scalar multiplication
+  
+  // more to come later
+}
+
+integer = @{ "-"? ~ ASCII_DIGIT+ }
+
+decimal = @{
+    ("-"? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*)
+  | ("-"? ~ ASCII_DIGIT ~ "e" ~ "-"? ~ ASCII_DIGIT)
+}
+
+ident = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
+
+cmd = @{
+	ASCII_ALPHANUMERIC+
+}
+
+cmd_param = @{ (!WHITESPACE~ ASCII_ALPHANUMERIC)+ }
+cmd_params = { cmd_param* }
+
+command = { "/" ~ cmd ~ cmd_params }
+
+WHITESPACE = _{ " " | "\t" }
+
+COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" | "//" ~ (!"\n" ~ ANY)* }

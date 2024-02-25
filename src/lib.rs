@@ -1,14 +1,22 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+use wasm_bindgen::prelude::*;
+mod commands;
+mod interp;
+mod matrix;
+mod parser;
+mod types;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+#[wasm_bindgen]
+pub fn process_string(input: &str) -> String {
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+    let ast_root = match parser::parse(&input) {
+        Ok(r) => r,
+        Err(e) => return "hi".to_owned(),
+    };
+
+    match interp::interp(&ast_root, None, false) {
+        Ok(_) => "successful interp".to_owned(),
+        Err(_) => "unsuccessful interp".to_owned(),
     }
 }
+
+
