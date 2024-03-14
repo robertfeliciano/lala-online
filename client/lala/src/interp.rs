@@ -1,7 +1,7 @@
 use super::commands;
 use super::parser::*;
 use super::types::*;
-use anyhow::anyhow;
+use anyhow::{anyhow, Error};
 use std::{collections::HashMap, ops::Deref};
 
 #[inline]
@@ -18,7 +18,7 @@ fn eval_expr(env: &mut HashMap<String, LalaType>, expr: &Box<AstNode>, func: &st
         AstNode::Ident(id) => get_value(env, id),
         AstNode::MonadicOp { verb, expr } => eval_monadic_op(expr, env, verb),
         AstNode::DyadicOp { verb, lhs, rhs } => eval_dyadic_op(lhs, rhs, env, verb),
-        AstNode::Matrix(m) => LalaType::Matrix(construct_matrix(m)),
+        AstNode::Matrix(m) => LalaType::Matrix(construct_matrix(m).unwrap()),
         _ => panic!("Can only call {} on a matrix.", func),
     }
 }
@@ -70,7 +70,7 @@ fn eval_assignment(
     ident: &String,
     expr: &Box<AstNode>,
     env: &mut HashMap<String, LalaType>,
-) -> Result<(), anyhow::Error> {
+) -> Result<(), Error> {
     match expr.deref() {
         AstNode::Integer(scalar) => match env.insert(ident.to_string(), LalaType::Integer(*scalar))
         {
@@ -87,7 +87,7 @@ fn eval_assignment(
             }
         }
         AstNode::Matrix(v) => {
-            let mat = construct_matrix(v);
+            let mat = construct_matrix(v).unwrap();
             match env.insert(ident.to_string(), LalaType::Matrix(mat)) {
                 _ => Ok(()),
             }
@@ -95,16 +95,16 @@ fn eval_assignment(
         AstNode::MonadicOp { verb, expr } => {
             let result = eval_monadic_op(expr, env, verb);
             match env.insert(ident.to_string(), result) {
-                _ => return Ok(()),
+                _ => Ok(()),
             }
         }
         AstNode::DyadicOp { verb, lhs, rhs } => {
             let result = eval_dyadic_op(lhs, rhs, env, verb);
             match env.insert(ident.to_string(), result) {
-                _ => return Ok(()),
+                _ => Ok(()),
             }
         }
-        _ => Err(anyhow!("bruh")),
+        _ => Err(anyhow!("interpreter error!")),
     }
 }
 
@@ -124,7 +124,7 @@ pub fn interp(
     ast: &Vec<Box<AstNode>>,
     map: Option<&mut HashMap<String, LalaType>>,
     linking: bool,
-) -> Result<(), anyhow::Error> {
+) -> Result<(), Error> {
     let mut binding = HashMap::new();
     #[allow(unused_mut)]
     let mut env: &mut HashMap<String, LalaType> = match map {
@@ -155,7 +155,7 @@ pub fn interp(
                 Ok(())
             }
             AstNode::Command((cmd, cmd_params)) => eval_cmd(*cmd, cmd_params, env),
-            bad_line => panic!("Invalid line: {:?}", bad_line),
+            bad_line => Err(anyhow!("Invalid line: {:?}", bad_line)),
         };
     }
 

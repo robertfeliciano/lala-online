@@ -1,0 +1,20 @@
+{
+	"name": "Lala Online Server",
+	"version": "1.0.0",
+	"description": "",
+	"main": "server.js",
+	"type": "module",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node server.js",
+    "seed": "node seed.js"
+	},
+	"author": "Robert Feliciano",
+	"license": "ISC",
+  "dependencies": {
+    "@apollo/server": "^4.10.1",
+    "graphql": "^16.8.1",
+    "mongodb": "^6.5.0",
+    "redis": "^4.6.13"
+  }
+}

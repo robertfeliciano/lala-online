@@ -18,6 +18,7 @@ impl Matrix {
 
     pub fn dot(&self, b: Self) -> Self {
         if self.rows != b.cols || self.cols != b.rows {
+            //TODO change panics to throw anyhow errors
             panic!(
                 "Dimensions not matched. M1 is {} by {}, M2 is {} by {}.",
                 self.rows, self.cols, b.rows, b.cols

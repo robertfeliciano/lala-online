@@ -1,6 +1,8 @@
 use super::matrix::Matrix;
-use crate::parser::{AstNode, DyadicVerb, MonadicVerb};
+use super::parser::{AstNode, DyadicVerb, MonadicVerb};
 use std::fmt::Display;
+use anyhow::{anyhow, Error};
+
 
 #[derive(Clone, Debug)]
 pub enum LalaType {
@@ -55,7 +57,7 @@ impl ToString for DyadicVerb {
 }
 
 // later, return result<matrix, error>
-pub fn construct_matrix(v: &Vec<Vec<AstNode>>) -> Matrix {
+pub fn construct_matrix(v: &Vec<Vec<AstNode>>) -> Result<Matrix, Error> {
     let rows = v.len();
     let cols = v[0].len();
     let mut mat: Vec<f64> = vec![0.0; rows * cols];
@@ -65,13 +67,13 @@ pub fn construct_matrix(v: &Vec<Vec<AstNode>>) -> Matrix {
             match &v[row][col] {
                 AstNode::Integer(i) => mat[row * cols + col] = *i as f64,
                 AstNode::DoublePrecisionFloat(d) => mat[row * cols + col] = *d,
-                err => panic!("{:?} not allowed in matrix definition", err),
+                err => return Err(anyhow!("{:?} not allowed in matrix definition", err))
             }
         }
     }
-    Matrix {
+    Ok(Matrix {
         rows,
         cols,
         data: mat,
-    }
+    })
 }

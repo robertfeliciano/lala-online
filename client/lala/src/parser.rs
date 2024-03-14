@@ -178,6 +178,7 @@ pub fn parse(source: &str) -> Result<Vec<Box<AstNode>>, Error<Rule>> {
     let pairs = LalaParser::parse(Rule::program, source)?;
     for pair in pairs {
         match pair.as_rule() {
+            // TODO add rules for fun_decl and command
             Rule::expr => {
                 ast.push(Box::new(build_ast_from_expr(pair).unwrap()));
             }
