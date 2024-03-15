@@ -1,0 +1,45 @@
+type Query {
+    getProjectById(projectId: ID!): Project
+    getQuickDataFromUser(userId: ID!): [QuickData]
+    getUserById(userId: ID!): User
+    notebookByProject(projectId: ID!): Notebook
+}
+
+type Mutation {
+    newProject: Project
+    updateProject(projectId: ID!, name: String, text: String)
+    updateNotebook(notebokId: ID!, cells: [String], outputs: [String])
+    # maybe do newCell for the notebook...?
+    removeProject(projectId: ID!): Project
+}
+
+scalar Date
+
+type User {
+    _id: ID!
+    firebasedId: String!
+    projects: [Project]!
+}
+
+type QucikData {
+    projectId: ID!
+    name: String!
+    date: Date!
+}
+
+type Project {
+    _id: ID!
+    userId: ID!
+    text: String!
+    name: String!
+    date: Date!
+    notebook: Notebook!
+}
+
+type Notebook {
+    _id: ID!
+    userId: ID!
+    inputCells: [String]!
+    responses: [String]! 
+    project: Project!
+}
