@@ -62,13 +62,11 @@ export const getDocumentById = async (id) => {
   const exists = await client.exists(key);
   if (exists)
     return JSON.parse(await client.get(key));
-  console.log('hello!!');
   const docs = await documentCollection();
   const found = await docs.findOne({_id: id});
   if (!found)
     notFound('document not found');
   await setObjInRedis(key, found);
-  console.log("hi")
   return found;
 }
 
