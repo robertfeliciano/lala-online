@@ -1,13 +1,13 @@
-import { ApolloServer } from '@apollo/server';
-import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServer } from '@apollo/server';
+import {GraphQLError} from "graphql";
 import express from "express";
 import cors from "cors";
 import http from "http"
 
-import {typeDefs} from './typeDefs.js';
 import {resolvers} from './resolvers.js';
-import {GraphQLError} from "graphql";
+import {typeDefs} from './typeDefs.js';
 
 const app = express();
 const httpServer = http.createServer(app);
