@@ -112,7 +112,7 @@ fn eval_cmd(
     cmd: &str,
     cmd_params: &Vec<&str>,
     env: &mut HashMap<String, LalaType>,
-) -> Result<(), anyhow::Error> {
+) -> Result<String, anyhow::Error> {
     match cmd {
         "link" => commands::link(cmd_params, env),
         "dbg" => commands::debug(env),
@@ -123,8 +123,8 @@ fn eval_cmd(
 pub fn interp(
     ast: &Vec<Box<AstNode>>,
     map: Option<&mut HashMap<String, LalaType>>,
-    linking: bool,
-) -> Result<(), Error> {
+    tcp: bool,
+) -> Result<String, Error> {
     let mut binding = HashMap::new();
     #[allow(unused_mut)]
     let mut env: &mut HashMap<String, LalaType> = match map {
@@ -133,31 +133,40 @@ pub fn interp(
     };
     for node in ast {
         let _ = match node.deref() {
-            AstNode::Assignment { ident, expr } => eval_assignment(ident, expr, env),
+            AstNode::Assignment { ident, expr } => {
+                let _ = eval_assignment(ident, expr, env);
+                if tcp {
+                    return Ok(format!("{}", env.get(ident).unwrap()));
+                }
+                Ok(())
+            }
             AstNode::MonadicOp { verb, expr } => {
                 let result = eval_monadic_op(expr, env, verb);
-                if !linking {
-                    println!("{result}");
+                if tcp {
+                    return Ok(result.to_string());
                 }
                 Ok(())
             }
             AstNode::DyadicOp { verb, lhs, rhs } => {
                 let result = eval_dyadic_op(lhs, rhs, env, verb);
-                if !linking {
-                    println!("{result}");
+                if tcp {
+                    return Ok(result.to_string());
                 }
                 Ok(())
             }
             AstNode::Ident(var) => {
-                if !linking {
-                    println!("{}", env.get(var).unwrap());
+                if tcp {
+                    return Ok(format!("{}", env.get(var).unwrap()));
                 }
                 Ok(())
             }
-            AstNode::Command((cmd, cmd_params)) => eval_cmd(*cmd, cmd_params, env),
+            AstNode::Command((cmd, cmd_params)) => {
+                println!("here");
+                return eval_cmd(*cmd, cmd_params, env);
+            }
             bad_line => Err(anyhow!("Invalid line: {:?}", bad_line)),
         };
     }
 
-    Ok(())
+    Ok("done".to_owned())
 }

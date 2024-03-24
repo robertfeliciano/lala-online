@@ -2,7 +2,8 @@
     "scripts": {
       "client": "npm run start --prefix client",
       "server": "npm run start --prefix server",
-      "start": "concurrently \"npm run server\" \"npm run client\""
+      "lala"  : "npm run start --prefix lala",
+      "start": "concurrently \"npm run server\" \"npm run client\" \"npm run lala\""
     },
     "dependencies": {
       "concurrently": "^8.0.1"

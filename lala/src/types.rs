@@ -1,5 +1,5 @@
-use super::matrix::Matrix;
 use super::parser::{AstNode, DyadicVerb, MonadicVerb};
+use super::matrix::Matrix;
 use std::fmt::Display;
 use anyhow::{anyhow, Error};
 

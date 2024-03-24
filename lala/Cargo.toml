@@ -7,7 +7,13 @@ edition = "2021"
 
 [lib]
 crate-type = ["cdylib"]
+name = "lala_lib"
 path = "src/lib.rs"
+
+
+[[bin]]
+name = "lala_bin"
+path = "src/main.rs"
 
 [dependencies]
 anyhow = "1.0.80"
