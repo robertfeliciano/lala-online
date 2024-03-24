@@ -62,11 +62,13 @@ export const getDocumentById = async (id) => {
   const exists = await client.exists(key);
   if (exists)
     return JSON.parse(await client.get(key));
+  console.log('hello!!');
   const docs = await documentCollection();
   const found = await docs.findOne({_id: id});
   if (!found)
     notFound('document not found');
   await setObjInRedis(key, found);
+  console.log("hi")
   return found;
 }
 
@@ -134,10 +136,6 @@ export const getUserField = async (fid, field) => {
           ]
         }
       }
-    }, {
-      '$project': {
-        'ownerFid': 0
-      }
     }
   ]).toArray();
   if (!entries)
@@ -176,7 +174,7 @@ export const newNotebook = async (fid) => {
   const users = await userCollection();
   const nbs  = await notebookCollection();
   const input = 'let a = 1 0 0 ; 0 1 0 ; 0 0 1';
-  const output = null;
+  const output = '';
   const insertedNb = await nbs.insertOne(
     {
       ownerFid: fid,
@@ -200,16 +198,17 @@ export const newNotebook = async (fid) => {
   return newNb;
 }
 
-export const updateDocument = async (fid, id, name, text) => {
+export const updateDocument = async (fid, id, name, file) => {
   id = checkId(id);
   const fieldsToUpdate = {};
   if (name)
     fieldsToUpdate.name = name;
-  if (text)
-    fieldsToUpdate.text = text;
+  if (file)
+    fieldsToUpdate.file = file;
   if (Object.keys(fieldsToUpdate).length < 1)
     badInput('must supply at least one field to update');
   const docs = await documentCollection();
+  fieldsToUpdate.date = new Date();
   const updatedDoc = await docs.findOneAndUpdate(
     {_id: id},
     {$set: fieldsToUpdate},
@@ -232,8 +231,8 @@ export const updateNotebook = async (fid, id, name, pairs) => {
     fieldsToUpdate.pairs = pairs;
   if (Object.keys(fieldsToUpdate).length < 1)
     badInput('must supply at least one field to update');
+  fieldsToUpdate.date = new Date();
   const nbs = await notebookCollection();
-  const updatePipeline = {};
   const updatedNb = await nbs.findOneAndUpdate(
     {_id: id},
     {$set: {...fieldsToUpdate}},
@@ -244,7 +243,36 @@ export const updateNotebook = async (fid, id, name, pairs) => {
   await setObjInRedis(`nb${id.toString()}`, updatedNb);
   if (name && (await client.exists(`qd${fid}`)))
     //TODO going to have to refetch quick data for sidebar whenever client
-    // does this
+    // does any updates
+    await client.del(`qd${fid}`);
+  return updatedNb;
+}
+
+export const updateSpecificCells = async (fid, id, name, indices, pairs) => {
+  id = checkId(id);
+  const fieldsToUpdate = {};
+  if (name)
+    fieldsToUpdate.name = name;
+  if (indices?.length > 0)
+    fieldsToUpdate.indices = indices;
+  if (pairs?.length > 0)
+    fieldsToUpdate.pairs = pairs;
+  if (Object.keys(fieldsToUpdate).length < 1)
+    badInput('must supply at least one field to update');
+  fieldsToUpdate.date = new Date();
+  const nbs = await notebookCollection();
+  indices.forEach((indexToChange, elemIdx) => {
+    const newPair = pairs[elemIdx];
+    nbs.findOneAndUpdate(
+      { _id: id },
+      { $set: { [`pairs.${indexToChange}`]: newPair } }
+    )
+  });
+  const updatedNb = await nbs.findOne({ _id: id });
+  if (!updatedNb)
+    ISE('could not update notebook');
+  await setObjInRedis(`nb${id.toString()}`, updatedNb);
+  if (name && (await client.exists(`qd${fid}`)))
     await client.del(`qd${fid}`);
   return updatedNb;
 }

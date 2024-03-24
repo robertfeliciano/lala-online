@@ -1,11 +1,8 @@
 import {ApolloServer} from '@apollo/server';
 import {startStandaloneServer} from '@apollo/server/standalone';
-import { readFileSync } from 'fs';
 
+import {typeDefs} from './typeDefs.js';
 import {resolvers} from './resolvers.js';
-
-// this can also be a glob pattern to match multiple files!
-const typeDefs = readFileSync('./typedefs.graphql', { encoding: 'utf-8' });
 
 const server = new ApolloServer({
   typeDefs,

@@ -10,7 +10,8 @@ import {
   removeDocument,
   removeNotebook,
   updateDocument,
-  updateNotebook
+  updateNotebook,
+  updateSpecificCells
 } from "./src/data.js";
 
 const tempFid = "123";
@@ -26,8 +27,10 @@ export const resolvers = {
   Mutation: {
     newDocument: (_, __, ctx) => newDocument(tempFid),
     newNotebook: (_, __, ctx) => newNotebook(tempFid),
-    updateDocument: (_, args, ctx) => updateDocument(tempFid, args._id, args.name, args.text),
+    updateDocument: (_, args, ctx) => updateDocument(tempFid, args._id, args.name, args.file),
     updateNotebook: (_, args, ctx) => updateNotebook(tempFid, args._id, args.name, args.pairs),
+    updateSpecificCells: (_, args, ctx) =>
+      updateSpecificCells(tempFid, args._id, args.name, args.indices, args.pairs),
     removeDocument: (_, args, ctx) => removeDocument(tempFid, args._id),
     removeNotebook: (_, args, ctx) => removeNotebook(tempFid, args._id)
   },
