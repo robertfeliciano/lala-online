@@ -40,25 +40,28 @@ fn handle_client(mut stream: TcpStream) -> Result<(), anyhow::Error>{
     Ok(())
 }
 
-fn find_available_port(start: u16) -> u16{
-    let mut ret_port = start;
-    loop {
-        match TcpListener::bind(("127.0.0.1", ret_port)) {
-            Ok(_) => {
-                // Port is not busy, we were able to bind successfully
-                return ret_port;
-            }
-            Err(_) => {
-                ret_port += 1;
-                continue;
-            }
-        }
-    }
-}
+// fn find_available_port(start: u16) -> u16{
+//     let mut ret_port = start;
+//     loop {
+//         match TcpListener::bind(("127.0.0.1", ret_port)) {
+//             Ok(_) => {
+//                 // Port is not busy, we were able to bind successfully
+//                 return ret_port;
+//             }
+//             Err(_) => {
+//                 ret_port += 1;
+//                 continue;
+//             }
+//         }
+//     }
+// }
 
 fn main() {
-    let port = find_available_port(8080);
-    let listener = TcpListener::bind(("127.0.0.1", port)).expect("Failed to bind address");
+    // let port = find_available_port(8080);
+    let port = 8080;
+    let listener = TcpListener::bind(("127.0.0.1", port)).expect(
+        &format!("Port {port} already in use.").as_str()
+    );
     println!("Lala kernel listening on port {port}...");
 
     for stream in listener.incoming() {
