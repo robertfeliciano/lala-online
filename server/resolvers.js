@@ -1,24 +1,48 @@
 import {GraphQLScalarType, GraphQLError, Kind} from "graphql";
+import {
+  getDocumentById,
+  getNotebookById,
+  getQuickDataFromUser,
+  getUserField,
+  newDocument,
+  newNotebook,
+  parseDate,
+  removeDocument,
+  removeNotebook,
+  updateDocument,
+  updateNotebook
+} from "./src/data.js";
+
+const tempFid = "123";
 
 export const resolvers = {
   Query: {
-
+    getDocumentById: (_, args, __) => getDocumentById(args._id),
+    getNotebookById: (_, args, __) => getNotebookById(args._id),
+    getQuickDataFromUser: (_, __, ctx) => getQuickDataFromUser(tempFid),
+    getUserDocuments: (_, __, ctx) => getUserField(tempFid, 'documents'),
+    getUserNotebooks: (_, __, ctx) => getUserField(tempFid, 'notebooks'),
   },
   Mutation: {
-    
+    newDocument: (_, __, ctx) => newDocument(tempFid),
+    newNotebook: (_, __, ctx) => newNotebook(tempFid),
+    updateDocument: (_, args, ctx) => updateDocument(tempFid, args._id, args.name, args.text),
+    updateNotebook: (_, args, ctx) => updateNotebook(tempFid, args._id, args.name, args.pairs),
+    removeDocument: (_, args, ctx) => removeDocument(tempFid, args._id),
+    removeNotebook: (_, args, ctx) => removeNotebook(tempFid, args._id)
   },
-  User: {
-
-  },
-  Project: {
-
-  },
-  Notebook: {
-
-  },
-  QuickData: {
-
-  },
+  // Pair: {
+  //
+  // },
+  // Document: {
+  //
+  // },
+  // Notebook: {
+  //
+  // },
+  // QuickData: {
+  //
+  // },
   Date: new GraphQLScalarType({
     name: "Date",
     description: "Date custom scalar type",
@@ -42,7 +66,7 @@ export const resolvers = {
           extensions: {code: 'BAD_USER_INPUT'}
         });
       try {
-        return date.parseDate(value);
+        return parseDate(value);
       } catch(e) {
         throw new GraphQLError(e, {
           extensions: {code: 'BAD_USER_INPUT'}
@@ -52,7 +76,7 @@ export const resolvers = {
     parseLiteral(ast) {
       if (ast.kind === Kind.STRING) {
         try {
-          return date.parseDate(ast.value);
+          return parseDate(ast.value);
         } catch(e) {
           throw new GraphQLError(e, {
             extensions: {code: 'BAD_USER_INPUT'}

@@ -1,45 +1,52 @@
 type Query {
-    getProjectById(projectId: ID!): Project
-    getQuickDataFromUser(userId: ID!): [QuickData]
-    getUserById(userId: ID!): User
-    notebookByProject(projectId: ID!): Notebook
+  getDocumentById(_id: ID!): Document!
+  getNotebookById(_id: ID!) : Notebook!
+  getQuickDataFromUser(_id: ID!): [QuickData!]!
+  getUserDocuments(_id: ID!): [Document!]!
+  getUserNotebooks(_id: ID!): [Notebook!]!
+}
+
+type Pair {
+  input: String!
+  output: String!
+}
+
+input PairInput {
+  input: String!
+  output: String!
 }
 
 type Mutation {
-    newProject: Project
-    updateProject(projectId: ID!, name: String, text: String)
-    updateNotebook(notebokId: ID!, cells: [String], outputs: [String])
-    # maybe do newCell for the notebook...?
-    removeProject(projectId: ID!): Project
+  newDocument: Document!
+  newNotebook: Notebook!
+  updateDocument(_id: ID!, name: String, text: String): Document!
+  updateNotebook(_id: ID!, name: String, pairs: [PairInput]): Notebook!
+  # maybe do newCell for the notebook...?
+  removeDocument(_id: ID!): Document!
+  removeNotebook(_id: ID!): Notebook!
 }
 
 scalar Date
 
-type User {
-    _id: ID!
-    firebasedId: String!
-    projects: [Project]!
+type QuickData {
+  _id: ID!
+  name: String!
+  type: String!
+  date: Date!
 }
 
-type QucikData {
-    projectId: ID!
-    name: String!
-    date: Date!
-}
-
-type Project {
-    _id: ID!
-    userId: ID!
-    text: String!
-    name: String!
-    date: Date!
-    notebook: Notebook!
+type Document {
+  _id: ID!
+  ownerFid: ID!
+  file: String!
+  name: String!
+  date: Date!
 }
 
 type Notebook {
-    _id: ID!
-    userId: ID!
-    inputCells: [String]!
-    responses: [String]! 
-    project: Project!
+  _id: ID!
+  ownerFid: ID!
+  name: String!
+  pairs: [Pair]!
+  date: Date!
 }
