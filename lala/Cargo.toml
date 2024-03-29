@@ -10,7 +10,6 @@ crate-type = ["cdylib"]
 name = "lala_lib"
 path = "src/lib.rs"
 
-
 [[bin]]
 name = "lala_bin"
 path = "src/main.rs"
@@ -20,3 +19,12 @@ anyhow = "1.0.80"
 pest = "2.7.7"
 pest_derive = "2.7.7"
 wasm-bindgen = "0.2.91"
+socketioxide = "0.8"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+axum = "0.6"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tower-http = { version = "0.4", features = ["cors"] }
+tower = "0.4"
