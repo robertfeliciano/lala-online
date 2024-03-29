@@ -1,7 +1,10 @@
+use axum::routing::get;
+use socketioxide::{extract::{Data, SocketRef}, SocketIo};
+use tower::ServiceBuilder;
+use tower_http::cors::CorsLayer;
+use tracing::info;
+use tracing_subscriber::FmtSubscriber;
 use std::collections::HashMap;
-use std::io::{Read, Write};
-use std::net::{TcpListener, TcpStream};
-use std::thread;
 use interp::interp;
 use types::LalaType;
 
@@ -11,74 +14,74 @@ mod parser;
 mod matrix;
 mod types;
 
-fn handle_client(mut stream: TcpStream) -> Result<(), anyhow::Error>{
-    let mut buffer = [0; 1024];
-    // initialize env for client
-    let mut env: HashMap<String, LalaType> = HashMap::new();
-    loop {
-        match stream.read(&mut buffer) {
-            Ok(bytes_read) => {
-                if bytes_read == 0 {
-                    break;
-                }
-
-                // convert bytes to string
-                let received_str = String::from_utf8_lossy(&buffer[..bytes_read]);
-
-                let input = received_str.trim();
-                let ast = parser::parse(input)?;
-                let response = interp(&ast, Some(&mut env), true)?;
-
-                // send result
-                stream.write_all(response.as_bytes()).unwrap();
-            }
-            Err(_) => {
-                break;
-            }
-        }
-    }
-    Ok(())
+#[derive(Debug, serde::Deserialize)]
+struct Cell {
+    auth: String,
+    cell_text: String,
 }
 
-// fn find_available_port(start: u16) -> u16{
-//     let mut ret_port = start;
-//     loop {
-//         match TcpListener::bind(("127.0.0.1", ret_port)) {
-//             Ok(_) => {
-//                 // Port is not busy, we were able to bind successfully
-//                 return ret_port;
-//             }
-//             Err(_) => {
-//                 ret_port += 1;
-//                 continue;
-//             }
-//         }
-//     }
-// }
-
-fn main() {
-    // let port = find_available_port(8080);
-    let port = 8080;
-    let listener = TcpListener::bind(("127.0.0.1", port)).expect(
-        &format!("Port {port} already in use.").as_str()
-    );
-    println!("Lala kernel listening on port {port}...");
-
-    for stream in listener.incoming() {
-        match stream {
-            Ok(stream) => {
-                if let Ok(peer_addr) = stream.peer_addr() {
-                    println!("New client connected from {}.", peer_addr);
-                } else {
-                    println!("Failed to get client address.");
-                }
-                thread::spawn(move || {
-                    handle_client(stream)
-                });
-            }
-            Err(e) => {
-                eprintln!("Error accepting connection: {}", e);
-            }
-        }
+impl std::fmt::Display for Cell {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Cell {{ cell_text: {} , auth: {} }}", self.cell_text, self.auth)
     }
+}
+
+#[derive(Debug, serde::Serialize)]
+struct CellOutput {
+    output: String, 
+}
+
+impl std::fmt::Display for CellOutput {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "CellOutput {{ output: {} }}", self.output)
+    }
+}
+
+async fn on_connect(socket: SocketRef) {
+    info!("socket connected: {}", socket.id);
+    let mut env: HashMap<String, LalaType> = HashMap::new();
+
+    socket.on("run", move |s: SocketRef, Data::<Cell>(data)| {
+        info!("Received message from {}: {:?}", s.id, data);
+
+        let input = data.cell_text.trim();
+
+        let _ = data.auth.trim();
+
+        let ast = parser::parse(input).unwrap();
+        let response = interp(&ast, Some(&mut env), true).unwrap();
+
+        let output = CellOutput {
+            output: response
+        };
+
+        info!("Sending message to {}: {:?}", s.id, output);
+
+        let _ = s.emit("output", output);
+    })
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    tracing::subscriber::set_global_default(FmtSubscriber::default())?;
+
+    let (layer, io) = SocketIo::new_layer();
+
+    io.ns("/", on_connect);
+
+    let app = axum::Router::new()
+        .route("/", get(|| async { "Hello, World!" }))
+        .layer(
+            ServiceBuilder::new()
+                .layer(CorsLayer::permissive())
+                .layer(layer),
+        );
+
+    info!("Lala Kernel Starting...");
+
+    axum::Server::bind(&"127.0.0.1:8080".parse().unwrap())
+        .serve(app.into_make_service())
+        .await?;
+
+    Ok(())
 }

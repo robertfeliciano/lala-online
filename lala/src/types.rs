@@ -1,8 +1,7 @@
-use super::parser::{AstNode, DyadicVerb, MonadicVerb};
 use super::matrix::Matrix;
-use std::fmt::Display;
+use super::parser::{AstNode, DyadicVerb, MonadicVerb};
 use anyhow::{anyhow, Error};
-
+use std::fmt::Display;
 
 #[derive(Clone, Debug)]
 pub enum LalaType {
@@ -67,7 +66,7 @@ pub fn construct_matrix(v: &Vec<Vec<AstNode>>) -> Result<Matrix, Error> {
             match &v[row][col] {
                 AstNode::Integer(i) => mat[row * cols + col] = *i as f64,
                 AstNode::DoublePrecisionFloat(d) => mat[row * cols + col] = *d,
-                err => return Err(anyhow!("{:?} not allowed in matrix definition", err))
+                err => return Err(anyhow!("{:?} not allowed in matrix definition", err)),
             }
         }
     }
