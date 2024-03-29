@@ -14,6 +14,9 @@ mod parser;
 mod matrix;
 mod types;
 
+const BLUE: &str = "\x1B[34m";
+const DFLT: &str = "\x1B[37m";
+
 #[derive(Debug, serde::Deserialize)]
 struct Cell {
     auth: String,
@@ -38,11 +41,11 @@ impl std::fmt::Display for CellOutput {
 }
 
 async fn on_connect(socket: SocketRef) {
-    info!("socket connected: {}", socket.id);
+    info!("socket connected: {}{}{}", BLUE, socket.id, DFLT);
     let mut env: HashMap<String, LalaType> = HashMap::new();
 
     socket.on("run", move |s: SocketRef, Data::<Cell>(data)| {
-        info!("Received message from {}: {:?}", s.id, data);
+        info!("Received message from {}{}{}: {:?}", BLUE, s.id, DFLT, data);
 
         let input = data.cell_text.trim();
 
@@ -55,7 +58,7 @@ async fn on_connect(socket: SocketRef) {
             output: response
         };
 
-        info!("Sending message to {}: {:?}", s.id, output);
+        info!("Sending message to {}{}{}: {:?}", BLUE, s.id, DFLT, output);
 
         let _ = s.emit("output", output);
     })
@@ -77,7 +80,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .layer(layer),
         );
 
-    info!("Lala Kernel Starting...");
+    info!("Lala Kernel Ready!");
 
     axum::Server::bind(&"127.0.0.1:8080".parse().unwrap())
         .serve(app.into_make_service())

@@ -18,7 +18,7 @@ function App() {
   
   const pingServer = () => {
     console.log('attempting to ping server');
-    socketRef.current.emit('run', {cell_text:"a", auth: "123"});
+    socketRef.current.emit('run', {cell_text:"let a = 1 0 0 ; 0 1 0 ; 0 0 1", auth: "123"});
   };
 
   return (
