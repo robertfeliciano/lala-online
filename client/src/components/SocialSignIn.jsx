@@ -1,3 +1,4 @@
+import {useContext} from 'react';
 import Typography from '@mui/joy/Typography';
 import GoogleLogo from '../assets/google-icon-logo.svg';
 import GithubLogo from '../assets/github-mark.png';
@@ -7,6 +8,8 @@ import CardMedia from '@mui/material/CardMedia';
 import Button from "@mui/joy/Button";
 import FormControl from "@mui/joy/FormControl";
 import {doGoogleSignIn, doGithubSigIn} from "../firebase/FirebaseFns.js";
+import {Navigate} from 'react-router-dom';
+import {AuthContext} from './AuthContext';
 
 const SocialButton = ({social, clickHandler}) => {
   const bgColor = social === 'Google' ? '#4285F4' : '#1d1b1b';
@@ -42,6 +45,11 @@ const SocialButton = ({social, clickHandler}) => {
 }
 
 const SocialSignIn = () => {
+  const {currentUser} = useContext(AuthContext);
+  if (currentUser) {
+    return <Navigate to='/' />;
+  }
+
   return (
     <div>
       <Typography component="div" variant="h4">
