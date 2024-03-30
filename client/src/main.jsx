@@ -1,16 +1,23 @@
 import ReactDOM from 'react-dom/client'
-import App from './components/App.jsx'
+import App from './components/App'
 import './styles/index.css'
-import { AuthProvider } from './firebase/AuthContext.jsx';
+import {BrowserRouter} from 'react-router-dom';
+import { AuthProvider } from './components/AuthContext';
 import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
-import auth from './firebase/FirebaseConfig.js';
+import conf from './firebase/FirebaseConfig';
+import {initializeApp} from 'firebase/app';
+import {getAuth} from "firebase/auth";
+
+const app = initializeApp(conf);
 
 const GQL_BACKEND = import.meta.env.VITE_APP_BACKEND;
 
 const httpLink = createHttpLink({
   uri: `${GQL_BACKEND}graphql`,
 });
+
+const auth = getAuth(app);
 
 const authLink = setContext(async (_, { headers }) => {
   const token = await auth.currentUser?.getIdToken();
@@ -29,9 +36,11 @@ const client = new ApolloClient({
 });
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <ApolloProvider client={client}>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-  </ApolloProvider>
+  <BrowserRouter>
+    <ApolloProvider client={client}>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </ApolloProvider>
+  </BrowserRouter>
 )

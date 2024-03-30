@@ -4,7 +4,7 @@ import { ApolloServer } from '@apollo/server';
 import {GraphQLError} from "graphql";
 import express from "express";
 import cors from "cors";
-import http from "http"
+import http from "http";
 
 import {resolvers} from './resolvers.js';
 import {typeDefs} from './typeDefs.js';
@@ -56,9 +56,13 @@ app.use('/api/graphql', cors(), expressMiddleware(server, {
   }
 }));
 
-app.post('/api/repl', async (req, res) => {
-  res.status(200).json({...req.body, output: "this is the output!!"});
-})
+/**
+ * TODO set up express app with sockets for real-time collaboration
+ */
+
+// app.post('/api/repl', async (req, res) => {
+//   res.status(200).json({...req.body, output: "this is the output!!"});
+// })
 
 app.get('*', (_, res) => res.status(404).send('uh oh'))
 
