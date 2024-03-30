@@ -24,13 +24,10 @@ app.use(express.json());
 
 // all queries hit this first to get their fid
 app.use(async (req, res, next) => {
-  // TODO remove true
-  const token = req.headers.authorization || req.query.token || '' || true;
+  const token = req.headers.authorization || req.query.token || '';
   if (token) {
     try {
-      // TODO Uncomment this line and remove manual set of uid to "123"
-      // const { uid } = await getAuth(firebaseApp).verifyIdToken(token, true);
-      const uid = "123";
+      const { uid } = await getAuth(firebaseApp).verifyIdToken(token, true);
       req.firebaseId = uid;
       return next();
     } catch (e) {

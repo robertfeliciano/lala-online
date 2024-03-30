@@ -7,7 +7,7 @@ const main = async () => {
 
     const users = await col.users();
     let newUser = await users.insertOne({
-        firebaseId: "123",
+        firebaseId: "a2JTGDDkBPSJjHCYMTt2KsdMgAD3",
         notebooks: [],
         documents: []
     });
