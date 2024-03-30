@@ -73,7 +73,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     io.ns("/", on_connect);
 
     let app = axum::Router::new()
-        .route("/", get(|| async { "Hello, World!" }))
+        .route("/", get(|| async { "This is not the webpage you are looking for..." }))
         .layer(
             ServiceBuilder::new()
                 .layer(CorsLayer::permissive())

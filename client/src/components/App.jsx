@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client'; // Import io function from socket.io-client
-import reactLogo from './assets/react.svg';
-import './App.css';
+import reactLogo from '../assets/react.svg';
+import '../styles/App.css';
 
 function App() {
   const [count, setCount] = useState(0);
