@@ -1,11 +1,15 @@
-import {doSignOut} from "../firebase/FirebaseFns.js";
-
+import {doSignOut} from "../firebase/FirebaseFns";
+import {Sidebar} from "./JoySidebar";
+import {Navbar} from "./Navbar";
+import {useContext, useEffect} from "react";
+import {AuthContext} from "./AuthContext.jsx";
 
 export const Home = () => {
-  return (
-    <div>
-      <button onClick={doSignOut}>Sign out</button>
+
+  return (<>
+    <Navbar />
+    <main>
       <h1>Hello!</h1>
-    </div>
-  )
+    </main>
+  </>)
 }

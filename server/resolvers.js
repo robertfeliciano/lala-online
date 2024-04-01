@@ -2,7 +2,7 @@ import {GraphQLScalarType, GraphQLError, Kind} from "graphql";
 import {
   getDocumentById,
   getNotebookById,
-  getQuickDataFromUser,
+  getQuickData,
   getUserField,
   newDocument,
   newNotebook,
@@ -18,7 +18,7 @@ export const resolvers = {
   Query: {
     getDocumentById: (_, args, __) => getDocumentById(args._id),
     getNotebookById: (_, args, __) => getNotebookById(args._id),
-    getQuickDataFromUser: (_, __, ctx) => getQuickDataFromUser(ctx.fid),
+    getQuickDataFromUser: (_, __, ctx) => getQuickData(ctx.fid),
     getUserDocuments: (_, __, ctx) => getUserField(ctx.fid, 'documents'),
     getUserNotebooks: (_, __, ctx) => getUserField(ctx.fid, 'notebooks'),
   },

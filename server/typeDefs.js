@@ -2,9 +2,9 @@ export const typeDefs = `#graphql
 type Query {
   getDocumentById(_id: String!): Document!
   getNotebookById(_id: String!) : Notebook!
-  getQuickDataFromUser(_id: String!): [QuickData!]!
-  getUserDocuments(_id: String!): [Document!]!
-  getUserNotebooks(_id: String!): [Notebook!]!
+  getQuickDataFromUser: [QuickData!]!
+  getUserDocuments: [Document!]!
+  getUserNotebooks: [Notebook!]!
 }
 
 type Pair {

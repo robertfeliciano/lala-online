@@ -7,7 +7,7 @@ import SocialSignIn from './SocialSignIn';
 import PrivateRoute from "./PrivateRoute";
 import {Home} from "./Home";
 
-function App() {
+const App = () => {
   // const [count, setCount] = useState(0);
   // const socketRef = useRef();
 
@@ -27,17 +27,28 @@ function App() {
 
   return (
     <div>
-      {/*<header>*/}
-      {/* TODO navbar? */}
-      {/*</header>*/}
       <Routes>
-        <Route path='/' element={<PrivateRoute />}>
-          <Route path='/' element={<Home />} />
+        <Route path="/" element={<PrivateRoute />}>
+          <Route path="/" element={<Home />} />
         </Route>
-        <Route path='/signin' element={<SocialSignIn />} />
+        <Route path="/docs" element={<PrivateRoute />}>
+          {/*<Route path="/docs" element={<Docs />} />*/}
+        </Route>
+        <Route path="/notebooks" element={<PrivateRoute />}>
+          {/*<Route path="/notebooks" element={<ListThing type="notebooks" />} />*/}
+        </Route>
+        <Route path="/documents" element={<PrivateRoute />}>
+          {/*<Route path="/documents" element={<ListThing type="documents" />} />*/}
+        </Route>
+        <Route path="/notebooks/:id" element={<PrivateRoute />}>
+          {/*<Route path="/notebooks/:id" element={<Notebook />} />*/}
+        </Route>
+        <Route path="/documents/:id" element={<PrivateRoute />}>
+          {/*<Route path="/documents/:id" element={<Document />} />*/}
+        </Route>
+        <Route path="/signin" element={<SocialSignIn />} />
       </Routes>
     </div>
-    // <SocialSignIn />
   )
 }
 

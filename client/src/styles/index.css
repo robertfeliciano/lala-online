@@ -66,3 +66,18 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+
+nav {
+  position: fixed;
+  top: 0;
+  /*width: 100%;*/
+  padding-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-item {
+  padding-right: 1rem;
+}

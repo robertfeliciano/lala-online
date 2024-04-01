@@ -84,7 +84,7 @@ export const getNotebookById = async (id) => {
   return found;
 }
 
-export const getQuickDataFromUser = async (fid) => {
+export const getQuickData = async (fid) => {
   const key = `qd${fid}`;
   const exists = await client.exists(key);
   if (exists)
