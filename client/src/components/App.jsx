@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
-import reactLogo from '../assets/react.svg';
 import '../styles/App.css';
 import {Route, Routes} from 'react-router-dom';
 import SocialSignIn from './SocialSignIn';

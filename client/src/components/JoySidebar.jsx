@@ -1,4 +1,4 @@
-import {useEffect, useState, useContext, useCallback} from 'react';
+import {useContext, useState} from 'react';
 import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
 import Drawer from '@mui/joy/Drawer';
@@ -12,6 +12,7 @@ import ModalClose from '@mui/joy/ModalClose';
 import {AuthContext} from './AuthContext';
 import queries from '../queries';
 import {useQuery} from "@apollo/client";
+import {NavLink} from "react-router-dom";
 
 export const Sidebar = () => {
   const [open, setOpen] = useState(false);
@@ -33,7 +34,11 @@ export const Sidebar = () => {
       Browse
     </button></div>;
 
-  const projects = data?.getQuickDataFromUser;
+  const projects = data?.getQuickDataFromUser || [];
+  const {currentUser} = useContext(AuthContext);
+  console.log(currentUser);
+
+  // TODO use useLocation to highlight what file they're on
 
   return (
     <div>
@@ -44,7 +49,6 @@ export const Sidebar = () => {
         open={open}
         onClose={() => setOpen(false)}
         size="sm"
-        invertedColors
       >
         <ModalClose />
         <DialogTitle>Files</DialogTitle>
@@ -52,9 +56,11 @@ export const Sidebar = () => {
           <List>
             {projects && projects.map(({_id, name, type, date}, idx) => (
               <ListItem key={idx}>
-                <ListItemButton onClick={() => setOpen(false)}>
-                  {name}
-                </ListItemButton>
+                <NavLink to={`${type}s/${_id}`}>
+                  <ListItemButton onClick={() => setOpen(false)}>
+                    {name}
+                  </ListItemButton>
+                </NavLink>
               </ListItem>
             ))}
           </List>
@@ -69,10 +75,10 @@ export const Sidebar = () => {
             borderColor: 'divider',
           }}
         >
-          <Avatar size="lg" />
+          {currentUser.photoURL ? <Avatar size="lg" src={currentUser.photoURL}/> : <Avatar size="lg" /> }
           <div>
-            <Typography level="title-md">Username</Typography>
-            <Typography level="body-sm">joined 20 Jun 2023</Typography>
+            <Typography level="title-md">{currentUser.displayName}</Typography>
+            <Typography level="body-sm">{currentUser.email}</Typography>
           </div>
         </Box>
       </Drawer>
