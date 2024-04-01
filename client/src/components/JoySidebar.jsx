@@ -13,20 +13,10 @@ import {AuthContext} from './AuthContext';
 import queries from '../queries';
 import {useQuery} from "@apollo/client";
 import {NavLink} from "react-router-dom";
+import {Sheet} from "@mui/joy";
 
 export const Sidebar = () => {
   const [open, setOpen] = useState(false);
-  // const [projects, setProjects] = useState([]);
-
-  // const x = useQuery(queries.QUICKDATA);
-  // console.log(x.data.getQuickDataFromUser);
-  // console.log(x);
-  // if (getQuickDataFromUser)
-  //   setProjects(getQuickDataFromUser);
-  // setProjects(x?.data?.getQuickDataFromUser);
-
-
-  // console.log(projects);
 
   const {data, loading} = useQuery(queries.QUICKDATA);
   if (loading)
@@ -36,7 +26,6 @@ export const Sidebar = () => {
 
   const projects = data?.getQuickDataFromUser || [];
   const {currentUser} = useContext(AuthContext);
-  console.log(currentUser);
 
   // TODO use useLocation to highlight what file they're on
 
@@ -49,16 +38,39 @@ export const Sidebar = () => {
         open={open}
         onClose={() => setOpen(false)}
         size="sm"
+        slotProps={{
+          content: {
+            sx: {
+              color: 'white',
+              bgcolor: 'transparent',
+              p: { md: 3, sm: 0 },
+              boxShadow: 'none',
+            },
+          },
+        }}
       >
-        <ModalClose />
+        <Sheet
+          sx={{
+            borderRadius: 'md',
+            bgcolor: 'black',
+            color: "white",
+            p: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            height: '100%',
+            overflow: 'auto',
+          }}
+        >
+        <ModalClose sx={{color: 'white'}}/>
         <DialogTitle>Files</DialogTitle>
         <DialogContent>
           <List>
             {projects && projects.map(({_id, name, type, date}, idx) => (
               <ListItem key={idx}>
                 <NavLink to={`${type}s/${_id}`}>
-                  <ListItemButton onClick={() => setOpen(false)}>
-                    {name}
+                  <ListItemButton onClick={() => setOpen(false)} sx={{color: "white", borderRadius:'md'}}>
+                    {name}, {date}
                   </ListItemButton>
                 </NavLink>
               </ListItem>
@@ -77,10 +89,11 @@ export const Sidebar = () => {
         >
           {currentUser.photoURL ? <Avatar size="lg" src={currentUser.photoURL}/> : <Avatar size="lg" /> }
           <div>
-            <Typography level="title-md">{currentUser.displayName}</Typography>
-            <Typography level="body-sm">{currentUser.email}</Typography>
+            <Typography level="title-md" color="white">{currentUser.displayName}</Typography>
+            <Typography level="body-sm" color="white">{currentUser.email}</Typography>
           </div>
         </Box>
+        </Sheet>
       </Drawer>
     </div>
   );
