@@ -16,8 +16,8 @@ import {
 
 export const resolvers = {
   Query: {
-    getDocumentById: (_, args, __) => getDocumentById(args._id),
-    getNotebookById: (_, args, __) => getNotebookById(args._id),
+    getDocumentById: (_, args, ctx) => getDocumentById(args._id, ctx.fid),
+    getNotebookById: (_, args, ctx) => getNotebookById(args._id, ctx.fid),
     getQuickDataFromUser: (_, __, ctx) => getQuickData(ctx.fid),
     getUserDocuments: (_, __, ctx) => getUserField(ctx.fid, 'documents'),
     getUserNotebooks: (_, __, ctx) => getUserField(ctx.fid, 'notebooks'),
@@ -32,18 +32,6 @@ export const resolvers = {
     removeDocument: (_, args, ctx) => removeDocument(ctx.fid, args._id),
     removeNotebook: (_, args, ctx) => removeNotebook(ctx.fid, args._id)
   },
-  // Pair: {
-  //
-  // },
-  // Document: {
-  //
-  // },
-  // Notebook: {
-  //
-  // },
-  // QuickData: {
-  //
-  // },
   Date: new GraphQLScalarType({
     name: "Date",
     description: "Date custom scalar type",

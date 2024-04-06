@@ -27,7 +27,14 @@ const badInput = (msg) => {
 const ISE = (msg) => {
   throw new GraphQLError(msg, {
     extensions: {code: "INTERNAL_SERVER_ERROR"},
-    http: {status: 400}
+    http: {status: 500}
+  });
+}
+
+const unauthorized = (thing) => {
+  throw new GraphQLError(`This ${thing} does not belong to you.`, {
+    extensions: {code: "UNAUTHORIZED"},
+    http: {status: 401}
   });
 }
 
@@ -59,30 +66,42 @@ const setArrayInRedis = async (key, arr, exp=60*60) => {
 // TODO check if fid is equal to the ownerFid for the stuff they are trying to get
 // TODO if implementing sharing, also check if their fid is in the sharedwith array
 
-export const getDocumentById = async (id) => {
+export const getDocumentById = async (id, fid) => {
   id = checkId(id);
   const key = `doc${id.toString()}`;
   const exists = await client.exists(key);
-  if (exists)
-    return JSON.parse(await client.get(key));
+  if (exists) {
+    const doc = JSON.parse(await client.get(key));
+    if (doc.ownerFid !== fid)
+      unauthorized('document');
+    return doc;
+  }
   const docs = await documentCollection();
   const found = await docs.findOne({_id: id});
   if (!found)
     notFound('document not found');
+  if (found.ownerFid !== fid)
+      unauthorized('document');
   await setObjInRedis(key, found);
   return found;
 }
 
-export const getNotebookById = async (id) => {
+export const getNotebookById = async (id, fid) => {
   id = checkId(id);
   const key = `nb${id.toString()}`;
   const exists = await client.exists(key);
-  if (exists)
-    return JSON.parse(await client.get(key));
+  if (exists) {
+    const nb = JSON.parse(await client.get(key));
+    if (nb.ownerFid !== fid)
+      unauthorized('notebook');
+    return nb;
+  }
   const notes = await notebookCollection();
   const found = await notes.findOne({_id: id});
   if (!found)
     notFound('document not found');
+  if (found.ownerFid !== fid)
+    unauthorized('notebook');
   await setObjInRedis(key, found);
   return found;
 }
