@@ -1,5 +1,5 @@
 import {doSignOut} from "../firebase/FirebaseFns";
-import {Sidebar} from "./JoySidebar";
+import {Sidebar} from "./Sidebar";
 import {Navbar} from "./Navbar";
 import {useContext, useEffect} from "react";
 import {AuthContext} from "./AuthContext.jsx";

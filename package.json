@@ -1,6 +1,6 @@
 {
     "scripts": {
-      "client": "npm run start --prefix client",
+      "client": "npm run dev --prefix client",
       "server": "npm run start --prefix server",
       "lala"  : "npm run start --prefix lala",
       "start": "concurrently \"npm run server\" \"npm run client\" \"npm run lala\""

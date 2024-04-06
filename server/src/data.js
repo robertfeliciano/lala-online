@@ -56,6 +56,9 @@ const setArrayInRedis = async (key, arr, exp=60*60) => {
   await client.expire(key, exp)
 }
 
+// TODO check if fid is equal to the ownerFid for the stuff they are trying to get
+// TODO if implementing sharing, also check if their fid is in the sharedwith array
+
 export const getDocumentById = async (id) => {
   id = checkId(id);
   const key = `doc${id.toString()}`;

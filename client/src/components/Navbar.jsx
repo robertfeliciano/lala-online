@@ -1,5 +1,5 @@
-import {doSignOut} from "../firebase/FirebaseFns";
-import {Sidebar} from "./JoySidebar.jsx";
+import {Sidebar} from "./Sidebar";
+import {SignOut} from './SignOut'
 
 export const Navbar = () => {
   return (
@@ -10,9 +10,7 @@ export const Navbar = () => {
       <div className="nav-item">
         <Sidebar/>
       </div>
-      <div className="nav-item">
-        <button onClick={doSignOut}>Sign out</button>
-      </div>
+      <SignOut/>
     </nav>
   )
 }

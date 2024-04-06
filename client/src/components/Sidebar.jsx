@@ -1,144 +1,100 @@
-// import React, { useState } from 'react';
-// import { styled, useTheme } from '@mui/material/styles';
-// import Box from '@mui/material/Box';
-// import Drawer from '@mui/material/Drawer';
-// import CssBaseline from '@mui/material/CssBaseline';
-// import MuiAppBar from '@mui/material/AppBar';
-// import Toolbar from '@mui/material/Toolbar';
-// import List from '@mui/material/List';
-// import Typography from '@mui/material/Typography';
-// import Divider from '@mui/material/Divider';
-// import IconButton from '@mui/material/IconButton';
-// import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-// import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-// import ListItem from '@mui/material/ListItem';
-// import ListItemButton from '@mui/material/ListItemButton';
-// import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-// import {GlobalStyles} from "@mui/joy";
-//
-// const drawerWidth = 200;
-//
-// const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-//   ({ theme, open }) => ({
-//     flexGrow: 1,
-//     padding: theme.spacing(3),
-//     transition: theme.transitions.create('margin', {
-//       easing: theme.transitions.easing.sharp,
-//       duration: theme.transitions.duration.leavingScreen,
-//     }),
-//     marginLeft: `-${drawerWidth}px`,
-//     ...(open && {
-//       transition: theme.transitions.create('margin', {
-//         easing: theme.transitions.easing.easeOut,
-//         duration: theme.transitions.duration.enteringScreen,
-//       }),
-//       marginLeft: 0,
-//     }),
-//   })
-// );
-//
-// const AppBar = styled(MuiAppBar, {
-//   shouldForwardProp: (prop) => prop !== 'open',
-// })(({ theme, open }) => ({
-//   transition: theme.transitions.create(['margin', 'width'], {
-//     easing: theme.transitions.easing.sharp,
-//     duration: theme.transitions.duration.leavingScreen,
-//   }),
-//   ...(open && {
-//     width: `calc(100% - ${drawerWidth}px)`,
-//     marginLeft: `${drawerWidth}px`,
-//     transition: theme.transitions.create(['margin', 'width'], {
-//       easing: theme.transitions.easing.easeOut,
-//       duration: theme.transitions.duration.enteringScreen,
-//     }),
-//   }),
-// }));
-//
-// const DrawerHeader = styled('div')(({ theme }) => ({
-//   display: 'flex',
-//   alignItems: 'center',
-//   padding: theme.spacing(0, 1),
-//   // necessary for content to be below app bar
-//   ...theme.mixins.toolbar,
-//   justifyContent: 'flex-end',
-// }));
-//
-// export const Home = () => {
-//   const theme = useTheme();
-//   const [open, setOpen] = useState(true);
-//
-//   const handleDrawerOpen = () => {
-//     setOpen(true);
-//   };
-//
-//   const handleDrawerClose = () => {
-//     setOpen(false);
-//   };
-//
-//   return (
-//     <Box sx={{ display: 'flex' }}>
-//       <CssBaseline />
-//       <GlobalStyles styles={{ // Add GlobalStyles to set the background color
-//         body: {
-//           backgroundColor: theme.palette.mode === 'dark' ? '#242424' : '#242424', // Adjust as per your preference
-//         },
-//       }} />
-//       <AppBar position="fixed" open={open}>
-//         <Toolbar>
-//           <IconButton
-//             color="inherit"
-//             aria-label="open drawer"
-//             onClick={handleDrawerOpen}
-//             edge="start"
-//             sx={{ mr: 2, ...(open && { display: 'none' }) }}
-//           >
-//             <ArrowForwardIosIcon />
-//           </IconButton>
-//           <Typography variant="h6" noWrap component="div">
-//             Persistent drawer
-//           </Typography>
-//         </Toolbar>
-//       </AppBar>
-//       <Drawer
-//         sx={{
-//           width: drawerWidth,
-//           flexShrink: 0,
-//           '& .MuiDrawer-paper': {
-//             width: drawerWidth,
-//             boxSizing: 'border-box',
-//           },
-//         }}
-//         variant="persistent"
-//         anchor="left"
-//         open={open}
-//       >
-//         <DrawerHeader>
-//           <IconButton onClick={handleDrawerClose}>
-//             {theme.direction === 'ltr' ? (
-//               <ChevronLeftIcon />
-//             ) : (
-//               <ChevronRightIcon />
-//             )}
-//           </IconButton>
-//         </DrawerHeader>
-//         <Divider />
-//         <List>
-//           {[...new Array(100)].map((_, index) => (
-//             <ListItem key={index}>
-//               <ListItemButton onClick={() => setOpen(false)}>
-//                 Item {index}
-//               </ListItemButton>
-//             </ListItem>
-//           ))}
-//         </List>
-//       </Drawer>
-//       <Main open={open}>
-//         <DrawerHeader />
-//         <Typography paragraph>bye</Typography>
-//         <Typography paragraph>hi</Typography>
-//         <button onClick={doSignOut}>Sign out</button>
-//         <h1>Hello!</h1>
-//       </Main>
-//     </Box>
-//   );
-// }
+import {useContext, useState} from 'react';
+import Avatar from '@mui/joy/Avatar';
+import Box from '@mui/joy/Box';
+import Drawer from '@mui/joy/Drawer';
+import DialogTitle from '@mui/joy/DialogTitle';
+import DialogContent from '@mui/joy/DialogContent';
+import List from '@mui/joy/List';
+import ListItem from '@mui/joy/ListItem';
+import ListItemButton from '@mui/joy/ListItemButton';
+import Typography from '@mui/joy/Typography';
+import ModalClose from '@mui/joy/ModalClose';
+import {AuthContext} from './AuthContext';
+import queries from '../queries';
+import {useQuery} from "@apollo/client";
+import {NavLink} from "react-router-dom";
+import {Sheet} from "@mui/joy";
+
+export const Sidebar = () => {
+  const [open, setOpen] = useState(false);
+  const {currentUser} = useContext(AuthContext);
+  const {data, loading} = useQuery(queries.QUICKDATA);
+  if (loading)
+    return <div><button onClick={() => setOpen(true)}>
+      Browse
+    </button></div>;
+
+  const projects = data?.getQuickDataFromUser || [];
+
+  // TODO use useLocation to highlight what file they're on
+
+  return (
+    <div>
+      <button onClick={() => setOpen(true)}>
+        Browse
+      </button>
+      <Drawer
+        open={open}
+        onClose={() => setOpen(false)}
+        size="sm"
+        slotProps={{
+          content: {
+            sx: {
+              color: 'white',
+              bgcolor: 'transparent',
+              p: { md: 3, sm: 0 },
+              boxShadow: 'none',
+            },
+          },
+        }}
+      >
+        <Sheet
+          sx={{
+            borderRadius: 'md',
+            bgcolor: 'black',
+            color: "white",
+            p: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            height: '100%',
+            overflow: 'auto',
+          }}
+        >
+        <ModalClose sx={{color: 'white'}}/>
+        <DialogTitle>Files</DialogTitle>
+        <DialogContent>
+          <List>
+            {projects && projects.map(({_id, name, type, date}, idx) => (
+              <ListItem key={idx}>
+                <NavLink to={`${type}s/${_id}`}>
+                  <ListItemButton onClick={() => setOpen(false)} sx={{color: "white", borderRadius:'md'}}>
+                    {name}, {date}
+                  </ListItemButton>
+                </NavLink>
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 1,
+            p: 1.5,
+            pb: 2,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
+          {currentUser.photoURL ? <Avatar size="lg" src={currentUser.photoURL}/> : <Avatar size="lg" /> }
+          <div style={{display: 'flex', alignItems: 'center'}}>
+            <Typography level="title-md" color="white" style={{paddingTop: '0.25rem'}}>
+              {currentUser.displayName}
+            </Typography>
+          </div>
+        </Box>
+        </Sheet>
+      </Drawer>
+    </div>
+  );
+}
