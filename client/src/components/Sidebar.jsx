@@ -10,15 +10,15 @@ import ListItemButton from '@mui/joy/ListItemButton';
 import Typography from '@mui/joy/Typography';
 import ModalClose from '@mui/joy/ModalClose';
 import {AuthContext} from './AuthContext';
-import queries from '../queries';
+import {QUICKDATA} from '../queries';
 import {useQuery} from "@apollo/client";
-import {NavLink} from "react-router-dom";
+import {Link, NavLink} from "react-router-dom";
 import {Sheet} from "@mui/joy";
 
 export const Sidebar = () => {
   const [open, setOpen] = useState(false);
   const {currentUser} = useContext(AuthContext);
-  const {data, loading} = useQuery(queries.QUICKDATA);
+  const {data, loading, error} = useQuery(QUICKDATA);
   if (loading)
     return (
       <div>
@@ -26,6 +26,12 @@ export const Sidebar = () => {
           Browse
         </button>
       </div>);
+  if (error)
+    return (
+      <div>
+        {error.message}
+      </div>
+    )
 
   const projects = data?.getQuickDataFromUser || [];
 
@@ -70,7 +76,7 @@ export const Sidebar = () => {
           <List>
             {projects && projects.map(({_id, name, type, date}, idx) => (
               <ListItem key={idx}>
-                <NavLink to={`${type}s/${_id}`}>
+                <NavLink to={`/${type}s/${_id}`}>
                   <ListItemButton onClick={() => setOpen(false)} sx={{color: "white", borderRadius:'md'}}>
                     {name}, {date}
                   </ListItemButton>

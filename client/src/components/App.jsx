@@ -5,6 +5,10 @@ import {Route, Routes} from 'react-router-dom';
 import SocialSignIn from './SocialSignIn';
 import PrivateRoute from "./PrivateRoute";
 import {Home} from "./Home";
+import {Document} from "./Document";
+import {useContext} from "react";
+import {AuthContext} from './AuthContext';
+import {Navbar} from "./Navbar.jsx";
 
 const App = () => {
   // const [count, setCount] = useState(0);
@@ -24,8 +28,11 @@ const App = () => {
   //   socketRef.current.emit('run', {cell_text:"let a = 1 0 0 ; 0 1 0 ; 0 0 1", auth: "123"});
   // };
 
+  const {currentUser} = useContext(AuthContext);
+
   return (
     <div>
+      {currentUser && <Navbar/>}
       <Routes>
         <Route path="/" element={<PrivateRoute />}>
           <Route path="/" element={<Home />} />
@@ -43,7 +50,7 @@ const App = () => {
           {/*<Route path="/notebooks/:id" element={<Notebook />} />*/}
         </Route>
         <Route path="/documents/:id" element={<PrivateRoute />}>
-          {/*<Route path="/documents/:id" element={<Document />} />*/}
+          <Route path="/documents/:id" element={<Document />} />
         </Route>
         <Route path="/signin" element={<SocialSignIn />} />
       </Routes>
