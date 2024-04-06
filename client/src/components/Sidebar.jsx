@@ -20,9 +20,12 @@ export const Sidebar = () => {
   const {currentUser} = useContext(AuthContext);
   const {data, loading} = useQuery(queries.QUICKDATA);
   if (loading)
-    return <div><button onClick={() => setOpen(true)}>
-      Browse
-    </button></div>;
+    return (
+      <div>
+        <button onClick={() => setOpen(true)}>
+          Browse
+        </button>
+      </div>);
 
   const projects = data?.getQuickDataFromUser || [];
 

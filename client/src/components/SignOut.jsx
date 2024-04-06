@@ -1,14 +1,10 @@
 import {doSignOut} from "../firebase/FirebaseFns";
 import {useState, Fragment} from 'react';
-import Button from '@mui/joy/Button';
-import {Sheet} from "@mui/joy";
 import Modal from '@mui/joy/Modal';
 import ModalDialog from '@mui/joy/ModalDialog';
 import DialogTitle from '@mui/joy/DialogTitle';
 import Stack from '@mui/joy/Stack';
 import '../styles/SignOut.css';
-import {height} from "@mui/system";
-import ModalClose from "@mui/joy/ModalClose";
 
 export const SignOut = () => {
   const [open, setOpen] = useState(false);
