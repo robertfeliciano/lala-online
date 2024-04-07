@@ -7,7 +7,6 @@ import {AuthContext} from "./AuthContext.jsx";
 export const Home = () => {
 
   return (<>
-    {/*<Navbar />*/}
     <main>
       <h1>Hello!</h1>
     </main>

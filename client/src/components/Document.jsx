@@ -2,8 +2,8 @@ import {useParams} from "react-router-dom";
 import {useMutation, useQuery} from "@apollo/client";
 import {GETDOC, UPDATEDOC} from "../queries";
 import {useState} from "react";
-import {Navbar} from "./Navbar";
 import TextareaAutosize from 'react-textarea-autosize';
+import {process_string} from '../wasm/lala_lib';
 
 export const Document = () => {
   const {id} = useParams();
@@ -15,6 +15,9 @@ export const Document = () => {
   const [saveDoc] = useMutation(UPDATEDOC, {
     onError: (e) => setErrMsg(e.message)
   });
+
+  const res = process_string('let a = 1 2 ; 3 4\na');
+  console.log(res);
 
   if (loading)
     return (
@@ -32,7 +35,6 @@ export const Document = () => {
   const doc = data?.getDocumentById;
 
   return (<>
-    {/*<Navbar />*/}
     <br/>
 
     <TextareaAutosize autoFocus defaultValue={doc.file} style={{height: "10rem", width: "50rem"}}/>

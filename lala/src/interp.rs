@@ -138,27 +138,28 @@ pub fn interp(
                 if tcp {
                     return Ok(format!("{}", env.get(ident).unwrap()));
                 }
-                Ok(())
+                Ok("".to_owned())
             }
             AstNode::MonadicOp { verb, expr } => {
                 let result = eval_monadic_op(expr, env, verb);
                 if tcp {
                     return Ok(result.to_string());
                 }
-                Ok(())
+                Ok("".to_owned())
             }
             AstNode::DyadicOp { verb, lhs, rhs } => {
                 let result = eval_dyadic_op(lhs, rhs, env, verb);
                 if tcp {
                     return Ok(result.to_string());
                 }
-                Ok(())
+                Ok("".to_owned())
             }
             AstNode::Ident(var) => {
+                let printable = format!("{}", env.get(var).unwrap());
                 if tcp {
-                    return Ok(format!("{}", env.get(var).unwrap()));
+                    return Ok(printable);
                 }
-                Ok(())
+                Ok(printable)
             }
             AstNode::Command((cmd, cmd_params)) => {
                 println!("here");
