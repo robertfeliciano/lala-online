@@ -131,43 +131,63 @@ pub fn interp(
         Some(m) => m,
         None => &mut binding,
     };
+
+    let mut result = String::new();
+
     for node in ast {
         let _ = match node.deref() {
             AstNode::Assignment { ident, expr } => {
                 let _ = eval_assignment(ident, expr, env);
-                if tcp {
-                    return Ok(format!("{}", env.get(ident).unwrap()));
-                }
-                Ok("".to_owned())
+                // if tcp {
+                //     return Ok(format!("{}", env.get(ident).unwrap()));
+                // }
+                // return Ok("".to_owned());
+                result = if tcp { 
+                    format!("{}", env.get(ident).unwrap())
+                } else {
+                    result
+                };
             }
             AstNode::MonadicOp { verb, expr } => {
-                let result = eval_monadic_op(expr, env, verb);
-                if tcp {
-                    return Ok(result.to_string());
-                }
-                Ok("".to_owned())
+                let temp = eval_monadic_op(expr, env, verb);
+                // if tcp {
+                //     return Ok(result.to_string());
+                // }
+                // return Ok("".to_owned());
+                result = if tcp {
+                    format!("{}", temp)
+                } else {
+                    result
+                };
             }
             AstNode::DyadicOp { verb, lhs, rhs } => {
-                let result = eval_dyadic_op(lhs, rhs, env, verb);
-                if tcp {
-                    return Ok(result.to_string());
-                }
-                Ok("".to_owned())
+                let temp = eval_dyadic_op(lhs, rhs, env, verb);
+                // if tcp {
+                //     return Ok(result.to_string());
+                // }
+                // return Ok("".to_owned());
+                result = if tcp {
+                    format!("{}", temp)
+                } else {
+                    result
+                };
             }
             AstNode::Ident(var) => {
                 let printable = format!("{}", env.get(var).unwrap());
-                if tcp {
-                    return Ok(printable);
-                }
-                Ok(printable)
+                // if tcp {
+                //     return Ok(printable);
+                // }
+                // return Ok(printable);
+                result = printable;
             }
             AstNode::Command((cmd, cmd_params)) => {
-                println!("here");
-                return eval_cmd(*cmd, cmd_params, env);
+                let temp = eval_cmd(*cmd, cmd_params, env);
+                result = temp.unwrap();
             }
-            bad_line => Err(anyhow!("Invalid line: {:?}", bad_line)),
+            bad_line => return Ok(format!("Invalid line: {:?}", bad_line)),
         };
     }
 
-    Ok("done".to_owned())
+    Ok(result)
+    // Ok("done".to_owned())
 }
