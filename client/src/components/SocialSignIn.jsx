@@ -14,7 +14,12 @@ import {AuthContext} from './AuthContext';
 const SocialButton = ({social, clickHandler}) => {
   const bgColor = social === 'Google' ? '#4285F4' : '#1d1b1b';
   return (
-    <Button sx={{ p: 0 }} aria-label={`${social} sign in button`} onClick={clickHandler}>
+    <Button
+      sx={{ p: 0 }}
+      aria-label={`${social} sign in button`}
+      style={{
+      }}
+      onClick={clickHandler}>
       <Card sx={{
         display: 'flex',
         p: 1,
