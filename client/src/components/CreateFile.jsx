@@ -8,14 +8,16 @@ import Stack from '@mui/joy/Stack';
 import {Fragment, useEffect, useState} from "react";
 import {
   NEWDOC,
-  NEWNB
+  NEWNB,
+  QUICKDATA,
+  USERDOCS,
+  USERNBS
 } from '../queries.js';
 import '../styles/SignOut.css';
 import CircularProgress from "@mui/joy/CircularProgress";
 
 export const CreateNewThing = ({thing, handleClose}) => {
   const newDoc = thing.toLowerCase() === 'document';
-  // create new thing -> confirm then redirect to /thing/:id
   const [errMsg, setErrMsg] = useState('');
   const [newDocData, setNewDocData] = useState(undefined);
   const [newNbData, setNewNbData] = useState(undefined);
@@ -26,20 +28,29 @@ export const CreateNewThing = ({thing, handleClose}) => {
       onError: (err) => setErrMsg(err.message),
       onCompleted: (data) => setNewDocData(data.newDocument),
       // TODO Update cache for /documents and /notebooks route in the useMutations and quickdata cache
-      // update(cache, {data: {newDocument}}) {
-      //   cache.modify({
-      //     fields: {
-      //       getQuickData(existingQD = []) {
-      //         const newDataRef = cache.writeFragment({
-      //           data: newDocumnet,
-      //           fragment: gql`
-      //             fragment
-      //           `
-      //         })
-      //       }
-      //     }
-      //   });
-      // }
+      update(cache, { data: { newDocument } }){
+        const {getUserDocuments} = cache.readQuery({query: USERDOCS}) || {};
+        if (getUserDocuments)
+          cache.writeQuery({
+            query: USERDOCS,
+            data: {getUserDocuments: [...getUserDocuments, newDocument]}
+          });
+
+        const {getQuickDataFromUser} = cache.readQuery({query: QUICKDATA}) || {};
+        if (getQuickDataFromUser)
+          cache.writeQuery({
+            query: QUICKDATA,
+            data: {getQuickDataFromUser: [
+                {
+                  _id: newDocument._id,
+                  name: newDocument.name,
+                  type: 'document',
+                  date: newDocument.date
+                },
+                ...getQuickDataFromUser
+              ]}
+          });
+      }
     }
   );
 
@@ -48,15 +59,29 @@ export const CreateNewThing = ({thing, handleClose}) => {
     {
       onError: (err) => setErrMsg(err.message),
       onCompleted: (data) => setNewNbData(data.newNotebook),
-      // update(cache, {data: {newNotebook}}) {
-      //   const {nbs} = cache.readQuery({
-      //     query: USERNBS
-      //   });
-      //   cache.writeQuery({
-      //     query: USERNBS,
-      //     data: {nbs: [...nbs, newNotebook]}
-      //   });
-      // }
+      update(cache, { data: { newNotebook } }){
+        const {getUserNotebooks} = cache.readQuery({query: USERNBS}) || {};
+        if (getUserNotebooks)
+          cache.writeQuery({
+            query: USERNBS,
+            data: {getUserDocuments: [...getUserNotebooks, newNotebook]}
+          });
+
+        const {getQuickDataFromUser} = cache.readQuery({query: QUICKDATA}) || {};
+        if (getQuickDataFromUser)
+          cache.writeQuery({
+            query: QUICKDATA,
+            data: {getQuickDataFromUser: [
+                {
+                  _id: newNotebook._id,
+                  name: newNotebook.name,
+                  type: 'notebook',
+                  date: newNotebook.date
+                },
+                ...getQuickDataFromUser
+              ]}
+          });
+      }
     }
   );
 
@@ -106,6 +131,7 @@ export const CreateNewThing = ({thing, handleClose}) => {
           <DialogTitle>{`Create new ${thing.toLowerCase()}`}</DialogTitle>
           <form
             onSubmit={onSubmit}
+            autoComplete="off"
           >
             <Stack spacing={2}>
               <Input
