@@ -3,7 +3,9 @@
       "client": "npm run dev --prefix client",
       "server": "npm run start --prefix server",
       "lala"  : "npm run start --prefix lala",
-      "start": "concurrently \"npm run server\" \"npm run client\" \"npm run lala\""
+      "start" : "concurrently \"npm run server\" \"npm run client\" \"npm run lala\"",
+      "flush" : "redis-cli FLUSHALL",
+      "seed"  : "npm run seed --prefix server"
     },
     "dependencies": {
       "concurrently": "^8.0.1"

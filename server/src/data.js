@@ -164,14 +164,14 @@ export const getUserField = async (fid, field) => {
   return entries;
 }
 
-export const newDocument = async (fid) => {
+export const newDocument = async (fid, name) => {
   const users = await userCollection();
   const docs  = await documentCollection();
   const insertedDoc = await docs.insertOne(
     {
       ownerFid: fid,
       file: "let a = 1 0 0 ; 0 1 0 ; 0 0 1\n",
-      name: "New Document",
+      name: name || "New Document",
       date: new Date()
     }
   );
@@ -190,7 +190,7 @@ export const newDocument = async (fid) => {
   return newDoc;
 }
 
-export const newNotebook = async (fid) => {
+export const newNotebook = async (fid, name) => {
   const users = await userCollection();
   const nbs  = await notebookCollection();
   const input = 'let a = 1 0 0 ; 0 1 0 ; 0 0 1';
@@ -198,7 +198,7 @@ export const newNotebook = async (fid) => {
   const insertedNb = await nbs.insertOne(
     {
       ownerFid: fid,
-      name: "New Notebook",
+      name: name || "New Notebook",
       pairs: [{input, output}],
       date: new Date()
     }

@@ -23,8 +23,8 @@ export const resolvers = {
     getUserNotebooks: (_, __, ctx) => getUserField(ctx.fid, 'notebooks'),
   },
   Mutation: {
-    newDocument: (_, __, ctx) => newDocument(ctx.fid),
-    newNotebook: (_, __, ctx) => newNotebook(ctx.fid),
+    newDocument: (_, args, ctx) => newDocument(ctx.fid, args.name),
+    newNotebook: (_, args, ctx) => newNotebook(ctx.fid, args.name),
     updateDocument: (_, args, ctx) => updateDocument(ctx.fid, args._id, args.name, args.file),
     updateNotebook: (_, args, ctx) => updateNotebook(ctx.fid, args._id, args.name, args.pairs),
     updateSpecificCells: (_, args, ctx) =>

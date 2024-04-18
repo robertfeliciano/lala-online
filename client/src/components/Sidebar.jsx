@@ -11,27 +11,15 @@ import Typography from '@mui/joy/Typography';
 import ModalClose from '@mui/joy/ModalClose';
 import {AuthContext} from './AuthContext';
 import {QUICKDATA} from '../queries';
-import {useQuery} from "@apollo/client";
-import {Link, NavLink} from "react-router-dom";
-import {Sheet} from "@mui/joy";
+import {useLazyQuery} from "@apollo/client";
+import {NavLink} from "react-router-dom";
+import Sheet from "@mui/joy/Sheet";
+import CircularProgress from '@mui/joy/CircularProgress'
 
 export const Sidebar = () => {
   const [open, setOpen] = useState(false);
   const {currentUser} = useContext(AuthContext);
-  const {data, loading, error} = useQuery(QUICKDATA);
-  if (loading)
-    return (
-      <div>
-        <button onClick={() => setOpen(true)}>
-          Browse
-        </button>
-      </div>);
-  if (error)
-    return (
-      <div>
-        {error.message}
-      </div>
-    )
+  const [loadQD, {data, loading, error, called}] = useLazyQuery(QUICKDATA);
 
   const projects = data?.getQuickDataFromUser || [];
 
@@ -39,7 +27,11 @@ export const Sidebar = () => {
 
   return (
     <div>
-      <button onClick={() => setOpen(true)}>
+      <button onClick={() => {
+          loadQD();
+          setOpen(true);
+      }}
+      >
         Browse
       </button>
       <Drawer
@@ -73,17 +65,22 @@ export const Sidebar = () => {
         <ModalClose sx={{color: 'white'}}/>
         <DialogTitle>Files</DialogTitle>
         <DialogContent>
-          <List>
-            {projects && projects.map(({_id, name, type, date}, idx) => (
-              <ListItem key={idx}>
-                <NavLink to={`/${type}s/${_id}`}>
-                  <ListItemButton onClick={() => setOpen(false)} sx={{color: "white", borderRadius:'md'}}>
-                    {name}, {date}
-                  </ListItemButton>
-                </NavLink>
-              </ListItem>
-            ))}
-          </List>
+          { called && loading ?
+            <CircularProgress variant={'soft'} color={'neutral'} thickness={1}/>
+            :
+            error ? <p>Error fetching data. Please try again.</p> :
+            <List>
+              {projects && projects.map(({_id, name, type, date}, idx) => (
+                <ListItem key={idx}>
+                  <NavLink to={`/${type}s/${_id}`}>
+                    <ListItemButton onClick={() => setOpen(false)} sx={{color: "white", borderRadius:'md'}}>
+                      {name}, {date}
+                    </ListItemButton>
+                  </NavLink>
+                </ListItem>
+              ))}
+            </List>
+          }
         </DialogContent>
         <Box
           sx={{

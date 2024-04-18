@@ -7,13 +7,13 @@ export const Navbar = () => {
   return (
     <nav>
       <div className="nav-item">
-        <button onClick={() => console.log('hi')}>Press me</button>
+        <button onClick={() => navigate('/')}>Home</button>
       </div>
       <div className="nav-item">
         <Sidebar/>
       </div>
       <div className="nav-item">
-        <button onClick={() => navigate('/')}>Home</button>
+        <button onClick={() => navigate('/profile')}>Profile</button>
       </div>
       <SignOut/>
     </nav>

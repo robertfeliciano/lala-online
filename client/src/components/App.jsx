@@ -6,8 +6,10 @@ import {Home} from "./Home";
 import {Document} from "./Document";
 import {useContext} from "react";
 import {AuthContext} from './AuthContext';
-import {Navbar} from "./Navbar.jsx";
-import {Notebook} from "./Notebook.jsx";
+import {Navbar} from "./Navbar";
+import {Notebook} from "./Notebook";
+import {Documents} from "./Documents";
+import {Notebooks} from "./Notebooks.jsx";
 
 const App = () => {
 
@@ -25,10 +27,10 @@ const App = () => {
             <Route path="/" element={<Home />} />
           </Route>
           <Route path="/notebooks" element={<PrivateRoute />}>
-            {/*<Route path="/notebooks" element={<ListThing type="notebooks" />} />*/}
+            <Route path="/notebooks" element={<Notebooks />} />
           </Route>
           <Route path="/documents" element={<PrivateRoute />}>
-            {/*<Route path="/documents" element={<ListThing type="documents" />} />*/}
+            <Route path="/documents" element={<Documents />} />
           </Route>
           <Route path="/notebooks/:id" element={<PrivateRoute />}>
             <Route path="/notebooks/:id" element={<Notebook />} />
@@ -36,6 +38,9 @@ const App = () => {
           <Route path="/documents/:id" element={<PrivateRoute />}>
             <Route path="/documents/:id" element={<Document />} />
           </Route>
+          {/*<Route path="/profile" element={<PrivateRoute />}>*/}
+          {/*  <Route path="/profile" element={<Profile />} />*/}
+          {/*</Route>*/}
           <Route path="/signin" element={<SocialSignIn />} />
         </Routes>
       </main>

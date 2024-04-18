@@ -1,29 +1,21 @@
 import {useParams} from "react-router-dom";
 import {useMutation, useQuery} from "@apollo/client";
 import {GETDOC, UPDATEDOC} from "../queries";
-import {useEffect, useState} from "react";
-import TextareaAutosize from 'react-textarea-autosize';
+import {useState} from "react";
 import {process_string} from '../wasm/lala_lib';
-import { useContext } from "react";
 
 export const Document = () => {
-
-
   const {id} = useParams();
   const [errMsg, setErrMsg] = useState('');
   const {loading, error, data} = useQuery(GETDOC, {
       variables: {id},
-      onError: (e) => setErrMsg(e.message)
+      onError: (e) => setErrMsg(e.message),
+      fetchPolicy: 'cache-and-network'
   });
   const [saveDoc] = useMutation(UPDATEDOC, {
     onError: (e) => setErrMsg(e.message)
   });
   const [output, setOutput] = useState('');
-
-
-  // useEffect(() => {
-  //   setFile({ name: data?.getDocumentById?.name || '', date: 'test' });
-  // }, [data]);
 
   const runLala = (e) => {
     const input = document.getElementById('lala-input')?.value;
@@ -32,7 +24,6 @@ export const Document = () => {
       return;
     }
     const interpreted = process_string(input);
-    console.log(interpreted)
     setOutput(interpreted);
   }
 
@@ -54,16 +45,22 @@ export const Document = () => {
   return (
     <>
       <br/>
-      <button>Save</button>
-      <button>Delete</button>
-      {/*<div>*/}
+      <div className={'file-options'}>
+        <button style={{marginRight: '0.5rem'}}>
+          Save Document
+        </button>
+        <button style={{marginLeft: '0.5rem'}}>
+          Delete Document
+        </button>
+      </div>
+      <div>
         <h1>
           {doc.name}
         </h1>
         <cite>
           {doc.date}
         </cite>
-      {/*</div>*/}
+      </div>
       <div className="document">
         {/* Text editor */}
         <span className="text-editor">

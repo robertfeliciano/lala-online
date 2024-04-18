@@ -13,7 +13,7 @@ export const AuthProvider = ({children}) => {
   useEffect(() => {
     // if (currentUser)
     //   apolloClient.refetchQueries({
-    //     include: ['getQuickDataFromUser']
+    //     include: ['getQuickData', 'getUserDocs', 'getUserNBs']
     //   });
     let myListener = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);

@@ -11,7 +11,8 @@ export const Notebook = () => {
   const [errMsg, setErrMsg] = useState('');
   const {loading, error, data} = useQuery(GETNB, {
     variables: {id},
-    onError: (e) => setErrMsg(e.message)
+    onError: (e) => setErrMsg(e.message),
+    fetchPolicy: 'cache-and-network'
   });
 
   const socketRef = useRef();
@@ -53,6 +54,15 @@ export const Notebook = () => {
   const nb = data?.getNotebookById;
   const cells = nb?.pairs;
   return (<>
+    <br/>
+    <div className={'file-options'}>
+      <button style={{marginRight: '0.5rem'}}>
+        Save Document
+      </button>
+      <button style={{marginLeft: '0.5rem'}}>
+        Delete Document
+      </button>
+    </div>
     <div>
       <h1>
         {nb.name}

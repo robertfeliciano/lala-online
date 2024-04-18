@@ -18,8 +18,8 @@ input PairInput {
 }
 
 type Mutation {
-  newDocument: Document!
-  newNotebook: Notebook!
+  newDocument(name: String!): Document!
+  newNotebook(name: String!): Notebook!
   updateDocument(_id: String!, name: String, file: String): Document!
   updateNotebook(_id: String!, name: String, pairs: [PairInput]): Notebook!
   updateSpecificCells(_id: String!, name: String, indices: [Int], pairs: [PairInput]): Notebook!

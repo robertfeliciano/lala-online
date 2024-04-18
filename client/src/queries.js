@@ -41,6 +41,7 @@ export const USERDOCS = gql`
     getUserDocuments {
       _id
       name
+      file
       date
     }
   }  
@@ -57,8 +58,8 @@ export const USERNBS = gql`
 `;
 
 export const NEWDOC = gql`
-  mutation newDoc {
-    newDocument {
+  mutation newDoc($name: String!) {
+    newDocument(name: $name) {
       _id
       name
       file
@@ -68,8 +69,8 @@ export const NEWDOC = gql`
 `;
 
 export const NEWNB = gql`
-  mutation newNB {
-    newNotebook {
+  mutation newNB($name: String!) {
+    newNotebook(name: $name) {
       _id
       name
       pairs {
