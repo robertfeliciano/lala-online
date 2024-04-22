@@ -40,6 +40,7 @@ export const Notebook = () => {
       </div>
     )
 
+  // TODO add time display to see how long cell takes to run using performance.now()
   const runCell = () => {
 
   }

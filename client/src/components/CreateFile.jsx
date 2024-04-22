@@ -27,7 +27,6 @@ export const CreateNewThing = ({thing, handleClose}) => {
     {
       onError: (err) => setErrMsg(err.message),
       onCompleted: (data) => setNewDocData(data.newDocument),
-      // TODO Update cache for /documents and /notebooks route in the useMutations and quickdata cache
       update(cache, { data: { newDocument } }){
         const {getUserDocuments} = cache.readQuery({query: USERDOCS}) || {};
         if (getUserDocuments)

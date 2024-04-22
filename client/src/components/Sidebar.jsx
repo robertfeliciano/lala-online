@@ -1,4 +1,4 @@
-import {useContext, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
 import Drawer from '@mui/joy/Drawer';
@@ -11,7 +11,7 @@ import Typography from '@mui/joy/Typography';
 import ModalClose from '@mui/joy/ModalClose';
 import {AuthContext} from './AuthContext';
 import {QUICKDATA} from '../queries';
-import {useLazyQuery} from "@apollo/client";
+import {useLazyQuery, useApolloClient} from "@apollo/client";
 import {NavLink} from "react-router-dom";
 import Sheet from "@mui/joy/Sheet";
 import CircularProgress from '@mui/joy/CircularProgress'
@@ -19,9 +19,22 @@ import CircularProgress from '@mui/joy/CircularProgress'
 export const Sidebar = () => {
   const [open, setOpen] = useState(false);
   const {currentUser} = useContext(AuthContext);
-  const [loadQD, {data, loading, error, called}] = useLazyQuery(QUICKDATA);
+  const [loadQD, {data, loading, error, called}] = useLazyQuery(
+    QUICKDATA,
+    {
+      fetchPolicy: 'cache-and-network'
+    });
 
   const projects = data?.getQuickDataFromUser || [];
+  const client = useApolloClient();
+
+  useEffect(() => {
+    if (data)
+      client.writeQuery({
+        query: QUICKDATA,
+        data: {getQuickDataFromUser: data.getQuickDataFromUser}
+      })
+  }, [data]);
 
   // TODO use useLocation to highlight what file they're on
 
