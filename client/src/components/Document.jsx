@@ -5,6 +5,7 @@ import {useState} from "react";
 import {process_string} from '../wasm/lala_lib';
 import {Delete} from './Delete'
 import CircularProgress from "@mui/joy/CircularProgress";
+import Textarea from '@mui/joy/Textarea';
 
 
 export const Document = () => {
@@ -119,8 +120,25 @@ export const Document = () => {
       </div>
       <div className="document">
         {/* Text editor */}
-        <span className="text-editor">
-          <textarea id={'lala-input'} defaultValue={doc.file}></textarea>
+        <span className="text-editor" style={{paddingLeft: '0.5rem'}}>
+          <Textarea
+            // slotProps={{ textarea: {height: '100vh' } }}
+            style={{height: '100%', backgroundColor: 'black', color: 'white'}}
+            sx={{
+              '--Textarea-focusedInset': 'var(--any, )',
+              '--Textarea-focusedThickness': '0.2rem',
+              '--Textarea-focusedHighlight': 'rgba(13,110,253,.25)',
+              '&::before': {
+                transition: 'box-shadow .15s ease-in-out',
+              },
+              '&:focus-within': {
+                borderColor: '#86b7fe',
+              },
+            }}
+            slotProps={{textarea: {id: 'lala-input'}}}
+            // id={'lala-input'}
+            defaultValue={doc.file}
+          />
           <button onClick={runLala}>Run</button>
         </span>
         {/* Terminal */}
