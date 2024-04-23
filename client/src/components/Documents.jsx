@@ -7,7 +7,7 @@ export const Documents =  () => {
   const [errMsg, setErrMsg] = useState('');
   const {loading, data, error} = useQuery(USERDOCS, {
     onError: (e) => setErrMsg(e.message),
-    fetchPolicy: 'cache-and-network'
+    fetchPolicy: 'cache-first'
   });
 
   if (errMsg || error)

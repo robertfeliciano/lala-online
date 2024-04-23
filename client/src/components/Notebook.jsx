@@ -12,7 +12,7 @@ export const Notebook = () => {
   const {loading, error, data} = useQuery(GETNB, {
     variables: {id},
     onError: (e) => setErrMsg(e.message),
-    fetchPolicy: 'cache-and-network'
+    fetchPolicy: 'cache-first'
   });
 
   const socketRef = useRef();

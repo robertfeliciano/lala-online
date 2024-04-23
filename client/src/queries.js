@@ -121,6 +121,7 @@ export const UPDATECELLS = gql`
 export const DELDOC = gql`
   mutation deleteDoc($id: String!) {
     removeDocument(_id: $id) {
+      _id
       name
     }
   }  
@@ -129,6 +130,7 @@ export const DELDOC = gql`
 export const DELNB = gql`
   mutation deleteNB($id: String!) {
     removeNotebook(_id: $id) {
+      _id
       name
     }
   }

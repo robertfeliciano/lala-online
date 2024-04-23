@@ -15,6 +15,10 @@ import {useLazyQuery, useApolloClient} from "@apollo/client";
 import {NavLink} from "react-router-dom";
 import Sheet from "@mui/joy/Sheet";
 import CircularProgress from '@mui/joy/CircularProgress'
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
+import {ListItemDecorator} from "@mui/joy";
+import {useNavigate} from "react-router-dom";
 
 export const Sidebar = () => {
   const [open, setOpen] = useState(false);
@@ -22,8 +26,9 @@ export const Sidebar = () => {
   const [loadQD, {data, loading, error, called}] = useLazyQuery(
     QUICKDATA,
     {
-      fetchPolicy: 'cache-and-network'
+      fetchPolicy: 'cache-first'
     });
+  const navigate = useNavigate();
 
   const projects = data?.getQuickDataFromUser || [];
   const client = useApolloClient();
@@ -37,6 +42,12 @@ export const Sidebar = () => {
   }, [data]);
 
   // TODO use useLocation to highlight what file they're on
+
+  const handleProfileClick = (e) => {
+    e.preventDefault();
+    navigate(`/profile`);
+    setOpen(false);
+  }
 
   return (
     <div>
@@ -87,7 +98,13 @@ export const Sidebar = () => {
                 <ListItem key={idx}>
                   <NavLink to={`/${type}s/${_id}`}>
                     <ListItemButton onClick={() => setOpen(false)} sx={{color: "white", borderRadius:'md'}}>
-                      {name}, {date}
+                      <ListItemDecorator>
+                        {type === 'document' ?
+                          <FormatAlignLeftIcon fontSize={'medium'}/>
+                          : <EditNoteIcon fontSize={'medium'}/>
+                        }
+                      </ListItemDecorator>
+                      {name.length < 15 ? name : `${name.slice(0,12)}...`}, {date}
                     </ListItemButton>
                   </NavLink>
                 </ListItem>
@@ -95,23 +112,25 @@ export const Sidebar = () => {
             </List>
           }
         </DialogContent>
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 1,
-            p: 1.5,
-            pb: 2,
-            borderTop: '1px solid',
-            borderColor: 'divider',
-          }}
-        >
-          {currentUser.photoURL ? <Avatar size="lg" src={currentUser.photoURL}/> : <Avatar size="lg" /> }
-          <div style={{display: 'flex', alignItems: 'center'}}>
-            <Typography level="title-md" color="white" style={{paddingTop: '0.25rem'}}>
-              {currentUser.displayName}
-            </Typography>
-          </div>
-        </Box>
+        <div onClick={handleProfileClick} style={{cursor: 'pointer'}}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 1,
+              p: 1.5,
+              pb: 2,
+              borderTop: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
+            {currentUser.photoURL ? <Avatar size="lg" src={currentUser.photoURL}/> : <Avatar size="lg" /> }
+            <div style={{display: 'flex', alignItems: 'center'}}>
+              <Typography level="title-md" color="white" style={{paddingTop: '0.25rem'}}>
+                {currentUser.displayName}
+              </Typography>
+            </div>
+          </Box>
+        </div>
         </Sheet>
       </Drawer>
     </div>

@@ -3,6 +3,7 @@ import {useMutation, useQuery} from "@apollo/client";
 import {GETDOC, QUICKDATA, UPDATEDOC, USERDOCS} from "../queries";
 import {useState} from "react";
 import {process_string} from '../wasm/lala_lib';
+import {Delete} from './Delete'
 import CircularProgress from "@mui/joy/CircularProgress";
 
 
@@ -13,7 +14,7 @@ export const Document = () => {
   const {loading,data} = useQuery(GETDOC, {
       variables: {id},
       onError: (e) => setErrMsg(e.message),
-      fetchPolicy: 'cache-and-network'
+      fetchPolicy: 'cache-first'
   });
   const [saveDoc] = useMutation(UPDATEDOC, {
     onError: (e) => setErrMsg(e.message),
@@ -23,14 +24,16 @@ export const Document = () => {
       if (getUserDocuments)
         cache.writeQuery({
           query: USERDOCS,
-          data: {getUserDocuments:
-            getUserDocuments.map(doc => doc._id === updateDocument._id ?
-              {
-                _id: updateDocument._id,
-                name: updateDocument.name,
-                type: 'document',
-                date: updateDocument.date
-              } : doc)}
+          data: {
+            getUserDocuments:
+              getUserDocuments.map(doc => doc._id === updateDocument._id ?
+                {
+                  _id: updateDocument._id,
+                  name: updateDocument.name,
+                  type: 'document',
+                  date: updateDocument.date
+                } : doc)
+          }
         });
 
       const {getQuickDataFromUser} = cache.readQuery({query: QUICKDATA}) || {};
@@ -100,9 +103,11 @@ export const Document = () => {
         <button style={{marginRight: '0.5rem'}} onClick={onClickSave}>
           {completed ? "Save Document" : <CircularProgress variant={'soft'} color={'neutral'} thickness={1}/>}
         </button>
-        <button style={{marginLeft: '0.5rem'}}>
-          Delete Document
-        </button>
+        <Delete
+          type={'Document'}
+          name={doc.name}
+          id={doc._id}
+        />
       </div>
       <div>
         <br/>

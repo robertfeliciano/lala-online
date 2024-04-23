@@ -7,7 +7,7 @@ export const Notebooks = () => {
   const [errMsg, setErrMsg] = useState('');
   const {loading, data, error} = useQuery(USERNBS, {
     onError: (e) => setErrMsg(e.message),
-    fetchPolicy: 'cache-and-network'
+    fetchPolicy: 'cache-first'
   });
 
   if (errMsg || error)
