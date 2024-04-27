@@ -17,8 +17,7 @@ const SocialButton = ({social, clickHandler}) => {
     <Button
       sx={{ p: 0 }}
       aria-label={`${social} sign in button`}
-      style={{
-      }}
+      style={{width: 225}}
       onClick={clickHandler}>
       <Card sx={{
         display: 'flex',
@@ -61,11 +60,11 @@ const SocialSignIn = () => {
         Welcome to Lala Online.
       </Typography>
       <br/>
-      <FormControl>
+      <FormControl style={{alignItems: 'center'}}>
         <SocialButton social="Google" clickHandler={doGoogleSignIn}></SocialButton>
       </FormControl>
       <br/>
-      <FormControl>
+      <FormControl style={{alignItems: 'center'}}>
         <SocialButton social="Github" clickHandler={doGithubSigIn}></SocialButton>
       </FormControl>
     </div>
