@@ -4,7 +4,7 @@ import ModalDialog from '@mui/joy/ModalDialog';
 import DialogTitle from '@mui/joy/DialogTitle';
 import Stack from '@mui/joy/Stack';
 import '../styles/SignOut.css';
-import {DELDOC, DELNB, QUICKDATA, USERDOCS} from "../queries.js";
+import {DELDOC, DELNB, QUICKDATA, USERDOCS, USERNBS} from "../queries.js";
 import {useMutation} from "@apollo/client";
 import CircularProgress from "@mui/joy/CircularProgress";
 import {useNavigate} from "react-router-dom";
@@ -47,7 +47,7 @@ export const Delete = (props) => {
     onError: (e) => setErrMsg(e.message),
     onCompleted: () => setCompleted(true),
     update(cache, { data: { removeNotebook } }) {
-      const {getUserNotebooks} = cache.readQuery({query: USERDOCS}) || {};
+      const {getUserNotebooks} = cache.readQuery({query: USERNBS}) || {};
       if (getUserNotebooks)
         cache.writeQuery({
           query: USERDOCS,
