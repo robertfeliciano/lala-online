@@ -31,7 +31,6 @@ export const Document = () => {
                 {
                   _id: updateDocument._id,
                   name: updateDocument.name,
-                  type: 'document',
                   date: updateDocument.date
                 } : doc)
           }
@@ -75,6 +74,7 @@ export const Document = () => {
   const runLala = (e) => {
     const input = document.getElementById('lala-input')?.value;
     if (!input) {
+      // TODO show errormodal or snackbar
       setErrMsg('must provide some input to run!');
       return;
     }
@@ -91,6 +91,7 @@ export const Document = () => {
         Loading...
       </div>
     );
+  // TODO add errormodal popup or snackbar
   if (errMsg) {
     return (
       <div>
@@ -117,7 +118,7 @@ export const Document = () => {
   return (
     <>
       <br/>
-      <div className={'file-options'}>
+      <div className={'file-options'} style={{zIndex: 2}}>
         <button style={{marginRight: '0.5rem'}} onClick={onClickSave}>
           {completed ? "Save Document" : <CircularProgress variant={'soft'} color={'neutral'} thickness={1}/>}
         </button>
