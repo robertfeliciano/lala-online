@@ -1,7 +1,7 @@
 import {useParams} from "react-router-dom";
 import {useMutation, useQuery} from "@apollo/client";
 import {GETDOC, QUICKDATA, UPDATEDOC, USERDOCS} from "../queries";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {process_string} from '../wasm/lala_lib';
 import {Delete} from './Delete'
 import CircularProgress from "@mui/joy/CircularProgress";
@@ -50,6 +50,21 @@ export const Document = () => {
                   type: 'document',
                   date: updateDocument.date
                 } : qd)
+          }
+        });
+      }
+      // TODO update cache for the document
+      const {getDocumentById} = cache.readQuery({query: GETDOC, variables: {id: updateDocument._id}}) || {};
+      if (getDocumentById){
+        cache.writeQuery({
+          query: GETDOC,
+          data: {
+            getDocumentById: {
+                _id: updateDocument._id,
+                file: updateDocument.file,
+                name: updateDocument.name,
+                date: updateDocument.date
+              }
           }
         });
       }
@@ -136,7 +151,6 @@ export const Document = () => {
               },
             }}
             slotProps={{textarea: {id: 'lala-input'}}}
-            // id={'lala-input'}
             defaultValue={doc.file}
           />
           <button onClick={runLala}>Run</button>

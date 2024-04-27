@@ -85,6 +85,7 @@ export const NEWNB = gql`
 export const UPDATEDOC = gql`
   mutation updateDoc($id: String!, $name: String, $file: String) {
     updateDocument(_id: $id, name: $name, file: $file){
+      _id
       file
       name
       date
@@ -95,6 +96,7 @@ export const UPDATEDOC = gql`
 export const UPDATENB = gql`
   mutation updateNB($id: String!, $name: String, $pairs: [PairInput]) {
     updateNotebook(_id: $id, name: $name, pairs: $pairs) {
+      _id
       name
       pairs {
         input
@@ -108,6 +110,7 @@ export const UPDATENB = gql`
 export const UPDATECELLS = gql`
   mutation updateCells($id: String!, $name: String, $indices: [Int], $pairs: [PairInput]) {
     updateSpecificCells(_id: $id, name: $name, indices: $indices, pairs: $pairs) {
+      _id
       name
       pairs {
         input
