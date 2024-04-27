@@ -1,12 +1,12 @@
 import {useParams} from "react-router-dom";
 import {useMutation, useQuery} from "@apollo/client";
 import {GETDOC, QUICKDATA, UPDATEDOC, USERDOCS} from "../queries";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {process_string} from '../wasm/lala_lib';
-import {Delete} from './Delete'
+import {Delete} from './Delete';
 import CircularProgress from "@mui/joy/CircularProgress";
 import Textarea from '@mui/joy/Textarea';
-
+import Input from '@mui/joy/Input';
 
 export const Document = () => {
   const {id} = useParams();
@@ -22,7 +22,7 @@ export const Document = () => {
     onCompleted: () => setCompleted(true),
     update(cache, { data: { updateDocument } }){
       const {getUserDocuments} = cache.readQuery({query: USERDOCS}) || {};
-      if (getUserDocuments)
+      if (getUserDocuments) {
         cache.writeQuery({
           query: USERDOCS,
           data: {
@@ -36,7 +36,7 @@ export const Document = () => {
                 } : doc)
           }
         });
-
+      }
       const {getQuickDataFromUser} = cache.readQuery({query: QUICKDATA}) || {};
       if (getQuickDataFromUser) {
         cache.writeQuery({
@@ -53,7 +53,6 @@ export const Document = () => {
           }
         });
       }
-      // TODO update cache for the document
       const {getDocumentById} = cache.readQuery({query: GETDOC, variables: {id: updateDocument._id}}) || {};
       if (getDocumentById){
         cache.writeQuery({
@@ -71,6 +70,7 @@ export const Document = () => {
     }
   });
   const [output, setOutput] = useState('');
+  const [timeTaken, setTimeTaken] = useState('');
 
   const runLala = (e) => {
     const input = document.getElementById('lala-input')?.value;
@@ -78,8 +78,10 @@ export const Document = () => {
       setErrMsg('must provide some input to run!');
       return;
     }
-    // TODO add time display to see how long process_string takes using performance.now()
+    const tick = performance.now();
     const interpreted = process_string(input);
+    const tock = performance.now();
+    setTimeTaken(`Lala took ${(tock - tick).toFixed(2)} milliseconds.`);
     setOutput(interpreted);
   }
 
@@ -125,10 +127,33 @@ export const Document = () => {
           id={doc._id}
         />
       </div>
-      <div>
+      <div align={'center'}>
         <br/>
         <br/>
-        <input id={'file-name'} defaultValue={doc.name} autoComplete={"off"}/>
+        <Input
+          id={'file-name'}
+          defaultValue={doc.name}
+          autoComplete={'off'}
+          size={'md'}
+          style={{
+            height: '100%',
+            backgroundColor: 'black',
+            color: 'white',
+            width: `${doc.name.length + 3}rem`
+          }}
+          sx={{
+            '--Input-focusedInset': 'var(--any, )',
+            '--Input-focusedThickness': '0.2rem',
+            '--Input-focusedHighlight': 'rgba(13,110,253,.25)',
+            '&::before': {
+              transition: 'box-shadow .15s ease-in-out',
+            },
+            '&:focus-within': {
+              borderColor: '#86b7fe',
+            },
+          }}
+          slotProps={{input: {id: 'file-name'}}}
+        />
         <cite>
           {doc.date}
         </cite>
@@ -150,7 +175,7 @@ export const Document = () => {
                 borderColor: '#86b7fe',
               },
             }}
-            slotProps={{textarea: {id: 'lala-input'}}}
+            slotProps={{textarea: {id: 'lala-input', autoFocus: true}}}
             defaultValue={doc.file}
           />
           <button onClick={runLala}>Run</button>
@@ -170,6 +195,12 @@ export const Document = () => {
                   )
                 })}
               </div>
+            </>
+          }
+          {timeTaken &&
+            <>
+              <br/>
+              {timeTaken}
             </>
           }
         </span>
