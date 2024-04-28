@@ -2,6 +2,7 @@ import {
   getAuth,
   signOut,
   signInWithPopup,
+  signInWithRedirect,
   GoogleAuthProvider,
   GithubAuthProvider
 } from 'firebase/auth';
@@ -15,7 +16,7 @@ const doGoogleSignIn = async () =>  {
 const doGithubSigIn = async () => {
   let auth = getAuth();
   let socialProvider = new GithubAuthProvider();
-  await signInWithPopup(auth, socialProvider);
+  await signInWithRedirect(auth, socialProvider);
 }
 
 const doSignOut = async () => {
