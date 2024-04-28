@@ -4,6 +4,7 @@ use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
 use tracing::info;
 use tracing_subscriber::FmtSubscriber;
+use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
 use interp::interp;
 use types::LalaType;
@@ -42,17 +43,20 @@ impl std::fmt::Display for CellOutput {
 
 async fn on_connect(socket: SocketRef) {
     info!("socket connected: {}{}{}", BLUE, socket.id, DFLT);
-    let mut env: HashMap<String, LalaType> = HashMap::new();
+    let env: Arc<Mutex<HashMap<String, LalaType>>> = Arc::new(Mutex::new(HashMap::new()));
+
+    let env_clone = Arc::clone(&env);
 
     socket.on("run", move |s: SocketRef, Data::<Cell>(data)| {
+        let mut env = env_clone.lock().unwrap();
+
         info!("Received message from {}{}{}: {:?}", BLUE, s.id, DFLT, data);
 
         let input = data.cell_text.trim();
-
         let _ = data.auth.trim();
-
         let ast = parser::parse(input).unwrap();
-        let response = interp(&ast, Some(&mut env), true).unwrap();
+
+        let response = interp(&ast, Some(&mut *env), true).unwrap();
 
         let output = CellOutput {
             output: response
@@ -61,7 +65,7 @@ async fn on_connect(socket: SocketRef) {
         info!("Sending message to {}{}{}: {:?}", BLUE, s.id, DFLT, output);
 
         let _ = s.emit("output", output);
-    })
+    });
 }
 
 #[tokio::main]

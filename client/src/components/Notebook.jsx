@@ -13,13 +13,19 @@ export const Notebook = () => {
   const {id} = useParams();
   const [errMsg, setErrMsg] = useState('');
   const [completed, setCompleted] = useState(true);
+  const [cellIdx, setCellIdx] = useState(0);
   const tick = useRef(0);
+  // const [cells, setCells] = useState([]);
   const socketRef = useRef();
   const {loading, error, data} = useQuery(GETNB, {
     variables: {id},
     onError: (e) => setErrMsg(e.message),
     fetchPolicy: 'network-only'
   });
+
+  const nb = data?.getNotebookById;
+  const cells = nb?.pairs
+
   useEffect(() => {
     // set up socket endpoint stuff
     const endpt =  import.meta.env.VITE_KERNEL_ENDPOINT;
@@ -28,6 +34,8 @@ export const Notebook = () => {
     socketRef.current.on('output', (({output}) => {
       const tock = performance.now();
       console.log(output)
+      const outLocation = document.getElementById(`lala-output-${cellIdx}`);
+      outLocation.innerText = output;
     }));
     return () => {
       socketRef.current.disconnect();
@@ -101,11 +109,15 @@ export const Notebook = () => {
       </div>
     )
 
-  const nb = data?.getNotebookById;
-  const cells = nb?.pairs;
 
   // TODO add time display to see how long cell takes to run using performance.now()
+  // TODO fix the shit where it isnt fucking working across cell things
+  // i think its the problem with me using setThing(...)
+  // and this causes a remount maybe
+  // but that sholdnt be an issue if im using useRef for the socket
+  // idk whatever man
   const runCell = (idx) => {
+    // setCellIdx(idx);
     let cell = document.getElementById(`lala-input-${idx}`)?.value;
     cell = cell.trim();
     if (!cell || cell === ''){
@@ -178,7 +190,7 @@ export const Notebook = () => {
     <br/>
     <br/>
     {
-      cells.map(({input, output}, idx) => {
+      cells && cells.map(({input, output}, idx) => {
         return (
           <div key={idx}>
             <div align={'center'}>
