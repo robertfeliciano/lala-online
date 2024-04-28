@@ -18,7 +18,7 @@ export const Notebook = () => {
   const {loading, error, data} = useQuery(GETNB, {
     variables: {id},
     onError: (e) => setErrMsg(e.message),
-    fetchPolicy: 'cache-first'
+    fetchPolicy: 'network-only'
   });
   useEffect(() => {
     // set up socket endpoint stuff
@@ -101,6 +101,9 @@ export const Notebook = () => {
       </div>
     )
 
+  const nb = data?.getNotebookById;
+  const cells = nb?.pairs;
+
   // TODO add time display to see how long cell takes to run using performance.now()
   const runCell = (idx) => {
     let cell = document.getElementById(`lala-input-${idx}`)?.value;
@@ -132,8 +135,6 @@ export const Notebook = () => {
     saveNB({variables});
   }
 
-  const nb = data?.getNotebookById;
-  const cells = nb?.pairs;
   return (<>
     <br/>
     <div className={'file-options'} style={{zIndex: 2}}>
@@ -207,13 +208,17 @@ export const Notebook = () => {
               />
               <button
                 style={{marginBottom: '1rem'}}
-                onClick={() => runCell(idx)}>Run Cell</button>
+                onClick={() => runCell(idx)}>Run Cell
+              </button>
             </div>
             <div id={`lala-output-${idx}`}>
               {output}
             </div>
-            <br/>
-            <br/>
+            <button
+              style={{marginTop: '1rem'}}
+            >
+              New Cell
+            </button>
           </div>
         )
       })

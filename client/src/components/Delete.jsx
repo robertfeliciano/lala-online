@@ -19,8 +19,6 @@ export const Delete = (props) => {
     onError: (e) => setErrMsg(e.message),
     onCompleted: () => setCompleted(true),
     update(cache, { data: { removeDocument } }) {
-      // TODO check if getUserDocuments is empty array and see if thats an issue
-      // NOTE i dont think it is an issue
       const {getUserDocuments} = cache.readQuery({query: USERDOCS}) || {};
       if (getUserDocuments)
         cache.writeQuery({

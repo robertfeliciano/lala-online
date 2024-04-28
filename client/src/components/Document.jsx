@@ -15,7 +15,7 @@ export const Document = () => {
   const {loading,data} = useQuery(GETDOC, {
       variables: {id},
       onError: (e) => setErrMsg(e.message),
-      fetchPolicy: 'cache-first'
+      fetchPolicy: 'network-only'
   });
   const [saveDoc] = useMutation(UPDATEDOC, {
     onError: (e) => setErrMsg(e.message),
