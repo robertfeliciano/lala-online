@@ -1,11 +1,27 @@
-program = _{ SOI ~ "\n"* ~ (stmt ~ "\n"+)* ~ stmt? ~ EOI }
+program = _{ SOI ~ NEWLINE* ~ (stmt ~ NEWLINE+)* ~ stmt? ~ EOI }
 
-stmt = _{ fun_decl | expr | command } 
+stmt = _{ fun_decl | expr | command }
+
+LPAREN = _{"("}
+RPAREN = _{")"}
+
+LET = _{"let"}
+FUN = _{"fun"}
+
+LBRACE = _{"{"}
+RBRACE = _{"}"}
+
+EQUAL = _{"="}
+ARROW = _{"=>"}
+
+SEMI = _{";"}
 
 params = {ident+}
-body = {(stmt ~ "\n"*)+ }
-fun_decl = {"fun" ~ ident ~ "=" ~ params ~
-"{" ~ "\n"* ~ body ~ "}"}
+body = {(stmt ~ NEWLINE*)+ }
+fun_decl = {
+  FUN ~ ident ~ EQUAL ~ LPAREN ~ params ~ RPAREN ~ ARROW ~
+  LBRACE ~ NEWLINE* ~ body ~ RBRACE
+}
 
 expr = {
     assn
@@ -21,26 +37,26 @@ app_param = {
 	ident
 	| term
 }
-app = { "(" ~ ident ~ app_param* ~ ")" }
+app = { LPAREN ~ ident ~ app_param* ~ RPAREN }
 
 monadic = { verb ~ expr }
 
 dyadic = { (monadic | terms | ident ) ~ verb ~ expr }
 
-assn = { "let" ~ ident ~ "=" ~ expr }
+assn = { LET ~ ident ~ EQUAL ~ expr }
 
 matrix = {
-    (terms ~ ";")+ ~ terms ~ ";"?
+    (terms ~ SEMI)+ ~ terms ~ SEMI?
 }
 
-vector = { terms ~ ";"?}
+vector = { terms ~ SEMI?}
 
 terms = { term+ }
 
 term = _{
     decimal
   | integer
-  | "(" ~ expr ~ ")"
+  | LPAREN ~ expr ~ RPAREN
 }
 
 verb = {
@@ -61,15 +77,17 @@ verb = {
   | "**" // elem wise multiplication
 
   | "!" // scalar multiplication
-  
+
   // more to come later
 }
 
-integer = @{ "-"? ~ ASCII_DIGIT+ }
+NEG = _{"-"}
+
+integer = @{ NEG? ~ ASCII_DIGIT+ }
 
 decimal = @{
-    ("-"? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*)
-  | ("-"? ~ ASCII_DIGIT ~ "e" ~ "-"? ~ ASCII_DIGIT)
+    (NEG? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*)
+  | (NEG? ~ ASCII_DIGIT ~ "e" ~ NEG? ~ ASCII_DIGIT)
 }
 
 ident = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
