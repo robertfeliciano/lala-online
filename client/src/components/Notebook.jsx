@@ -13,10 +13,10 @@ export const Notebook = () => {
 
   const [errMsg, setErrMsg] = useState('');
   const [completed, setCompleted] = useState(true);
-  const [cellIdx, setCellIdx] = useState(0);
   const [cells, setCells] = useState([]);
 
   const socketRef = useRef();
+  const cellIdx = useRef(0);
 
   const {loading, error, data} = useQuery(GETNB, {
     variables: {id},
@@ -78,7 +78,8 @@ export const Notebook = () => {
 
     socketRef.current.on('output', (({output}) => {
       console.log(output)
-      const outLocation = document.getElementById(`lala-output-${cellIdx}`);
+      console.log('hi' + cellIdx.current);
+      const outLocation = document.getElementById(`lala-output-${cellIdx.current}`);
       outLocation.innerText = output;
     }));
     return () => {
@@ -104,8 +105,11 @@ export const Notebook = () => {
 
   // TODO maybe add time display as snackbar or something
   const runCell = (idx) => {
-    setCellIdx(idx);
-    let cell = document.getElementById(`lala-input-${cellIdx}`)?.value;
+    console.log(idx)
+    console.log('before' + cellIdx.current)
+    cellIdx.current = idx;
+    console.log('after' + cellIdx.current)
+    let cell = document.getElementById(`lala-input-${cellIdx.current}`)?.value;
     cell = cell.trim();
     if (!cell || cell === ''){
       console.log('ERROR CHECK -> cell must contain valid lala')
