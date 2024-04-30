@@ -38,9 +38,6 @@ const App = () => {
           <Route path="/documents/:id" element={<PrivateRoute />}>
             <Route path="/documents/:id" element={<Document />} />
           </Route>
-          {/*<Route path="/profile" element={<PrivateRoute />}>*/}
-          {/*  <Route path="/profile" element={<Profile />} />*/}
-          {/*</Route>*/}
           <Route path="/signin" element={<SocialSignIn />} />
         </Routes>
       </main>
