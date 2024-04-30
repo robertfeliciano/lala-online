@@ -37,7 +37,7 @@ app_param = {
 	ident
 	| term
 }
-app = { LPAREN ~ ident ~ app_param* ~ RPAREN }
+app = { ident ~ LPAREN ~ app_param* ~ RPAREN }
 
 monadic = { verb ~ expr }
 
