@@ -32,7 +32,7 @@ export const CreateNewThing = ({thing, handleClose}) => {
         if (getUserDocuments)
           cache.writeQuery({
             query: USERDOCS,
-            data: {getUserDocuments: [...getUserDocuments, newDocument]}
+            data: {getUserDocuments: [newDocument, ...getUserDocuments]}
           });
 
         const {getQuickDataFromUser} = cache.readQuery({query: QUICKDATA}) || {};
@@ -63,7 +63,7 @@ export const CreateNewThing = ({thing, handleClose}) => {
         if (getUserNotebooks)
           cache.writeQuery({
             query: USERNBS,
-            data: {getUserDocuments: [...getUserNotebooks, newNotebook]}
+            data: {getUserNotebooks: [newNotebook, ...getUserNotebooks]}
           });
 
         const {getQuickDataFromUser} = cache.readQuery({query: QUICKDATA}) || {};
