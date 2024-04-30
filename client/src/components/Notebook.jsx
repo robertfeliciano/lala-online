@@ -1,48 +1,34 @@
 import {useParams} from "react-router-dom";
 import {useMutation, useQuery} from "@apollo/client";
 import {GETNB, QUICKDATA, UPDATENB, USERNBS} from "../queries";
-import {useState, useEffect, useRef, useContext} from "react";
+import {useState, useEffect, useRef} from "react";
 import { io } from 'socket.io-client';
 import {Delete} from './Delete';
 import CircularProgress from "@mui/joy/CircularProgress";
-import {AuthContext} from './AuthContext';
 import Textarea from '@mui/joy/Textarea';
 import Input from '@mui/joy/Input';
 
 export const Notebook = () => {
   const {id} = useParams();
+
   const [errMsg, setErrMsg] = useState('');
   const [completed, setCompleted] = useState(true);
   const [cellIdx, setCellIdx] = useState(0);
-  const tick = useRef(0);
-  // const [cells, setCells] = useState([]);
+  const [cells, setCells] = useState([]);
+
   const socketRef = useRef();
+
   const {loading, error, data} = useQuery(GETNB, {
     variables: {id},
     onError: (e) => setErrMsg(e.message),
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
+    onCompleted: (data) => {
+      if (data && data.getNotebookById) {
+        setCells(data.getNotebookById.pairs);
+      }
+    }
   });
 
-  const nb = data?.getNotebookById;
-  const cells = nb?.pairs
-
-  useEffect(() => {
-    // set up socket endpoint stuff
-    const endpt =  import.meta.env.VITE_KERNEL_ENDPOINT;
-    socketRef.current = io(endpt);
-
-    socketRef.current.on('output', (({output}) => {
-      const tock = performance.now();
-      console.log(output)
-      const outLocation = document.getElementById(`lala-output-${cellIdx}`);
-      outLocation.innerText = output;
-    }));
-    return () => {
-      socketRef.current.disconnect();
-    };
-  }, []);
-
-  const {currentUser} = useContext(AuthContext);
   const [saveNB] = useMutation(UPDATENB, {
     onError: (e) => setErrMsg(e.message),
     onCompleted: () => setCompleted(true),
@@ -53,12 +39,14 @@ export const Notebook = () => {
           query: USERNBS,
           data: {
             getUserNotebooks:
-              getUserNotebooks.map(nb => nb._id === updateNotebook._id ?
+              [
                 {
                   _id: updateNotebook._id,
                   name: updateNotebook.name,
                   date: updateNotebook.date
-                } : nb)
+                },
+                ...getUserNotebooks.filter(nb => nb._id !== updateNotebook._id)
+              ]
           }
         });
       }
@@ -68,32 +56,37 @@ export const Notebook = () => {
           query: QUICKDATA,
           data: {
             getQuickDataFromUser:
-              getQuickDataFromUser.map(qd => qd._id === updateNotebook._id ?
+              [
                 {
                   _id: updateNotebook._id,
                   name: updateNotebook.name,
                   type: 'notebook',
                   date: updateNotebook.date
-                } : qd)
-          }
-        });
-      }
-      const {getNotebookById} = cache.readQuery({query: GETNB, variables: {id: updateNotebook._id}}) || {};
-      if (getNotebookById) {
-        cache.writeQuery({
-          query: GETNB,
-          data: {
-            getNotebookById: {
-              _id: updateNotebook._id,
-              date: updateNotebook.date,
-              name: updateNotebook.name,
-              pairs: updateNotebook.pairs
-            }
+                },
+                ...getQuickDataFromUser.filter(qd => qd._id !== updateNotebook._id)
+              ]
           }
         });
       }
     }
   });
+
+  useEffect(() => {
+    // set up socket endpoint stuff
+    const endpt =  import.meta.env.VITE_KERNEL_ENDPOINT;
+    socketRef.current = io(endpt);
+
+    socketRef.current.on('output', (({output}) => {
+      console.log(output)
+      const outLocation = document.getElementById(`lala-output-${cellIdx}`);
+      outLocation.innerText = output;
+    }));
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, []);
+
+  const nb = data?.getNotebookById;
 
   if (loading || !socketRef.current)
     return (
@@ -109,23 +102,24 @@ export const Notebook = () => {
       </div>
     )
 
-
-  // TODO add time display to see how long cell takes to run using performance.now()
-  // TODO fix the shit where it isnt fucking working across cell things
-  // i think its the problem with me using setThing(...)
-  // and this causes a remount maybe
-  // but that sholdnt be an issue if im using useRef for the socket
-  // idk whatever man
+  // TODO maybe add time display as snackbar or something
   const runCell = (idx) => {
-    // setCellIdx(idx);
-    let cell = document.getElementById(`lala-input-${idx}`)?.value;
+    setCellIdx(idx);
+    let cell = document.getElementById(`lala-input-${cellIdx}`)?.value;
     cell = cell.trim();
     if (!cell || cell === ''){
       console.log('ERROR CHECK -> cell must contain valid lala')
     }
-    tick.current = performance.now();
-    socketRef.current.emit('run', {cell_text:cell, auth: currentUser.uid});
+    socketRef.current.emit('run', {cell_text:cell});
   }
+
+  const addCell = () => {
+    setCells(prevCells => [
+      ...prevCells,
+      { input: 'let a = 1 0 0 ; 0 1 0 ; 0 0 1\na',
+        output: '' }
+    ]);
+  };
 
   const onClickSave = (e) => {
     e.preventDefault();
@@ -226,14 +220,15 @@ export const Notebook = () => {
             <div id={`lala-output-${idx}`}>
               {output}
             </div>
-            <button
-              style={{marginTop: '1rem'}}
-            >
-              New Cell
-            </button>
           </div>
         )
       })
     }
+    <button
+      style={{marginTop: '1rem', marginBottom: '1.5rem'}}
+      onClick={addCell}
+    >
+      New Cell
+    </button>
   </>)
 }

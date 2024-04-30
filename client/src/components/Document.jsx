@@ -27,12 +27,14 @@ export const Document = () => {
           query: USERDOCS,
           data: {
             getUserDocuments:
-              getUserDocuments.map(doc => doc._id === updateDocument._id ?
+              [
                 {
                   _id: updateDocument._id,
                   name: updateDocument.name,
                   date: updateDocument.date
-                } : doc)
+                },
+                ...getUserDocuments.filter(doc => doc._id !== updateDocument._id)
+              ]
           }
         });
       }
@@ -42,13 +44,15 @@ export const Document = () => {
           query: QUICKDATA,
           data: {
             getQuickDataFromUser:
-              getQuickDataFromUser.map(qd => qd._id === updateDocument._id ?
+              [
                 {
                   _id: updateDocument._id,
                   name: updateDocument.name,
                   type: 'document',
                   date: updateDocument.date
-                } : qd)
+                },
+                ...getQuickDataFromUser.filter(qd => qd._id !== updateDocument._id)
+              ]
           }
         });
       }

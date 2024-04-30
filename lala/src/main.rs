@@ -20,13 +20,12 @@ const DFLT: &str = "\x1B[37m";
 
 #[derive(Debug, serde::Deserialize)]
 struct Cell {
-    auth: String,
     cell_text: String,
 }
 
 impl std::fmt::Display for Cell {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Cell {{ cell_text: {} , auth: {} }}", self.cell_text, self.auth)
+        write!(f, "Cell {{ cell_text: {} }}", self.cell_text)
     }
 }
 
@@ -53,7 +52,6 @@ async fn on_connect(socket: SocketRef) {
         info!("Received message from {}{}{}: {:?}", BLUE, s.id, DFLT, data);
 
         let input = data.cell_text.trim();
-        let _ = data.auth.trim();
         let ast = parser::parse(input).unwrap();
 
         let response = interp(&ast, Some(&mut *env), true).unwrap();
