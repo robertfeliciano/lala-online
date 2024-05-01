@@ -12,6 +12,9 @@ export const Navbar = () => {
       <div className="nav-item">
         <Sidebar/>
       </div>
+      <div className="nav-item">
+        <button onClick={() => navigate('/guide')}>Guide</button>
+      </div>
       <SignOut/>
     </nav>
   )

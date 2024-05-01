@@ -48,7 +48,7 @@ export const Delete = (props) => {
       const {getUserNotebooks} = cache.readQuery({query: USERNBS}) || {};
       if (getUserNotebooks)
         cache.writeQuery({
-          query: USERDOCS,
+          query: USERNBS,
           data: {
             getUserNotebooks:
               getUserNotebooks.filter(doc => doc._id !== removeNotebook._id)

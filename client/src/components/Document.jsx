@@ -144,7 +144,8 @@ export const Document = () => {
             height: '100%',
             backgroundColor: 'black',
             color: 'white',
-            width: `${doc.name.length + 3}rem`
+            width: `${doc.name.length + 3}rem`,
+            marginTop: '5rem'
           }}
           sx={{
             '--Input-focusedInset': 'var(--any, )',

@@ -99,7 +99,7 @@ export const getNotebookById = async (id, fid) => {
   const notes = await notebookCollection();
   const found = await notes.findOne({_id: id});
   if (!found)
-    notFound('document not found');
+    notFound('notebook not found');
   if (found.ownerFid !== fid)
     unauthorized('notebook');
   await setObjInRedis(key, found);

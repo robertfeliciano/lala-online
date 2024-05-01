@@ -166,6 +166,7 @@ export const Notebook = () => {
           backgroundColor: 'black',
           color: 'white',
           width: `${nb.name.length + 3}rem`,
+          marginTop: '8rem'
         }}
         sx={{
           '--Input-focusedInset': 'var(--any, )',
@@ -212,7 +213,7 @@ export const Notebook = () => {
                   },
                   '&:focus-within': {
                     borderColor: '#86b7fe',
-                  },
+                  }
                 }}
                 slotProps={{textarea: {id: `lala-input-${idx}`}}}
               />
@@ -221,7 +222,7 @@ export const Notebook = () => {
                 onClick={() => runCell(idx)}>Run Cell
               </button>
             </div>
-            <div id={`lala-output-${idx}`}>
+            <div id={`lala-output-${idx}`} style={{marginBottom: '1.5rem'}}>
               {output}
             </div>
           </div>

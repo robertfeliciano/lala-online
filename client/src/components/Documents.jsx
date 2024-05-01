@@ -2,6 +2,10 @@ import {useQuery} from "@apollo/client";
 import {USERDOCS} from '../queries.js'
 import {useState} from "react";
 import {NavLink} from "react-router-dom";
+import Card from '@mui/joy/Card';
+import CardContent from '@mui/joy/CardContent';
+import Typography from '@mui/joy/Typography';
+import Grid from "@mui/joy/Grid";
 
 export const Documents =  () => {
   const [errMsg, setErrMsg] = useState('');
@@ -21,33 +25,44 @@ export const Documents =  () => {
   return (
     <>
       <h1>Documents</h1>
-      <div className={'home-select'}>
+      <Grid
+        container
+        spacing={{ xs: 2, md: 3 }}
+        columns={{ xs: 8}}
+        sx={{ flexGrow: 1 }}
+        justifyContent="center"
+      >
         {
           docs.map((doc, idx) => {
             return (
-              <div key={idx}>
+              <Grid xs={2} key={idx}>
                 <NavLink to={`/documents/${doc._id}`}>
-                  <button
-                    className={'hoverbtn'}
-                    style={{
-                      width: 200,
-                      marginBottom: '0.75rem'
-                  }}
+                  <Card
+                    variant="outlined"
+                    sx={{
+                      bgcolor: 'black'
+                    }}
                   >
-                    <h2 style={{marginTop: 0}}>{doc.name}</h2>
-                    <cite>
-                      {doc.date}
-                    </cite>
-                    <p>
-                      {doc.file.length > 15 ? `${doc.file.slice(0,15)}...` : doc.file}
-                    </p>
-                  </button>
+                    <CardContent>
+                      <Typography
+                        level="title-md"
+                        sx={{
+                          color: 'white'
+                        }}
+                        >
+                        {doc.name}
+                      </Typography>
+                      <Typography  sx={{color: 'grey'}}>
+                        {doc.date}
+                      </Typography>
+                    </CardContent>
+                  </Card>
                 </NavLink>
-              </div>
+              </Grid>
             )
           })
         }
-      </div>
+      </Grid>
     </>
   )
 }

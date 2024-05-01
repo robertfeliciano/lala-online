@@ -43,12 +43,6 @@ export const Sidebar = () => {
 
   // TODO use useLocation to highlight what file they're on
 
-  const handleProfileClick = (e) => {
-    e.preventDefault();
-    navigate(`/profile`);
-    setOpen(false);
-  }
-
   return (
     <div>
       <button onClick={() => {
@@ -112,7 +106,7 @@ export const Sidebar = () => {
             </List>
           }
         </DialogContent>
-        <div onClick={handleProfileClick} style={{cursor: 'pointer'}}>
+        <div style={{cursor: 'pointer'}}>
           <Box
             sx={{
               display: 'flex',

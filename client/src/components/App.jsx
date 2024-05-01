@@ -18,9 +18,6 @@ const App = () => {
   return (
     <>
       {currentUser && <Navbar/>}
-      <br/>
-      <br/>
-      <br/>
       <main>
         <Routes>
           <Route path="/" element={<PrivateRoute />}>
