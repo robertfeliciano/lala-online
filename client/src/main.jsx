@@ -8,7 +8,6 @@ import { setContext } from '@apollo/client/link/context';
 import conf from './firebase/FirebaseConfig';
 import {initializeApp} from 'firebase/app';
 import {getAuth} from "firebase/auth";
-// import FileProvider from "./components/FileContext.jsx";
 
 const app = initializeApp(conf);
 
@@ -40,9 +39,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <ApolloProvider client={client}>
       <AuthProvider>
-        {/*<FileProvider>*/}
-          <App />
-        {/*</FileProvider>*/}
+        <App />
       </AuthProvider>
     </ApolloProvider>
   </BrowserRouter>

@@ -5,9 +5,11 @@ import ModalDialog from '@mui/joy/ModalDialog';
 import DialogTitle from '@mui/joy/DialogTitle';
 import Stack from '@mui/joy/Stack';
 import '../styles/SignOut.css';
+import {useApolloClient} from "@apollo/client";
 
 export const SignOut = () => {
   const [open, setOpen] = useState(false);
+  const client = useApolloClient();
   return (
     <Fragment>
       <button onClick={() => setOpen(true)}>
@@ -31,7 +33,7 @@ export const SignOut = () => {
             onSubmit={(e) => {
               e.preventDefault();
               setOpen(false);
-              doSignOut();
+              doSignOut(client);
             }}
           >
             <Stack spacing={2}>

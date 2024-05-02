@@ -138,6 +138,11 @@ export const getUserField = async (fid, field) => {
   const users = await userCollection();
   const entries = await users.aggregate([
     {
+      '$match': {
+        'firebaseId': `${fid}`
+      }
+    },
+    {
       '$unwind': {
         'path': `$${field}`
       }

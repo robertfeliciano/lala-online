@@ -19,7 +19,8 @@ const doGithubSigIn = async () => {
   await signInWithRedirect(auth, socialProvider);
 }
 
-const doSignOut = async () => {
+const doSignOut = async (client) => {
+  await client.clearStore();
   let auth = getAuth();
   await signOut(auth);
 }
