@@ -139,6 +139,17 @@ export const Document = () => {
     saveDoc({variables});
   }
 
+  const handleKeyDown = (e) => {
+    if (e.ctrlKey && e.key === 'r') {
+      e.preventDefault();
+      runLala(e);
+    }
+    else if (e.ctrlKey && e.key === 's') {
+      e.preventDefault();
+      onClickSave(e);
+    }
+  }
+
   return (
     <>
       <br/>
@@ -154,6 +165,7 @@ export const Document = () => {
       </div>
       <div align={'center'} style={{marginTop: '8rem'}}>
         <Input
+          onKeyDown={handleKeyDown}
           id={'file-name'}
           defaultValue={doc.name}
           autoComplete={'off'}
@@ -186,6 +198,7 @@ export const Document = () => {
         {/* Text editor */}
         <span className="text-editor" style={{paddingLeft: '0.5rem'}}>
           <Textarea
+            onKeyDown={handleKeyDown}
             style={{height: '100%', backgroundColor: 'black', color: 'white'}}
             sx={{
               '--Textarea-focusedInset': 'var(--any, )',
