@@ -1,13 +1,14 @@
 {
-    "scripts": {
-      "client": "npm run dev --prefix client",
-      "server": "npm run start --prefix server",
-      "lala"  : "npm run start --prefix lala",
-      "start" : "concurrently \"npm run server\" \"npm run client\" \"npm run lala\"",
-      "flush" : "redis-cli FLUSHALL",
-      "seed"  : "npm run seed --prefix server"
-    },
-    "dependencies": {
-      "concurrently": "^8.0.1"
-    }
+  "scripts": {
+    "client": "npm run dev --prefix client",
+    "server": "npm run start --prefix server",
+    "lala"  : "npm run start --prefix lala",
+    "start" : "concurrently \"npm run server\" \"npm run client\" \"npm run lala\"",
+    "prod"  : "concurrently \"npm run server\" \"serve -p 8081 client/dist\" \"npm run lala\"",
+    "flush" : "redis-cli FLUSHALL",
+    "seed"  : "npm run seed --prefix server"
+  },
+  "dependencies": {
+    "concurrently": "^8.0.1"
   }
+}
