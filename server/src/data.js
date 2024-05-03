@@ -141,8 +141,7 @@ export const getUserField = async (fid, field) => {
       '$match': {
         'firebaseId': `${fid}`
       }
-    },
-    {
+    }, {
       '$unwind': {
         'path': `$${field}`
       }
@@ -160,6 +159,10 @@ export const getUserField = async (fid, field) => {
             '$result', 0
           ]
         }
+      }
+    }, {
+      '$sort': {
+        'date': -1
       }
     }
   ]).toArray();

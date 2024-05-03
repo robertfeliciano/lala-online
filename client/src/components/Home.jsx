@@ -24,30 +24,7 @@ export const Home = () => {
     )
   }
 
-  const Description = ({children}) => {
-    return <Typography
-      level='h4'
-      sx={{
-        color: 'white',
-        marginBottom: '1.75rem'
-      }}
-      fontSize={'lg'}
-    >
-      {children}
-    </Typography>
-  }
-
   return (<div className={'home-select'}>
-    <Description>
-      Lala Online is an online text editor for my custom programming
-      language, Lala.
-    </Description>
-    <Description>
-      Documents are standard text editors with one file that you can edit and run.
-    </Description>
-    <Description>
-      Notebooks are like Jupyter Notebooks; you can edit and run different cells as you wish.
-    </Description>
     <Typography
       level="h2"
       maxWidth={500}

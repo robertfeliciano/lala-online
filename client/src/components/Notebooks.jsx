@@ -2,52 +2,64 @@ import {useQuery} from "@apollo/client";
 import {USERNBS} from '../queries.js'
 import {useState} from "react";
 import {NavLink} from "react-router-dom";
+import Grid from "@mui/joy/Grid";
+import Card from "@mui/joy/Card";
+import CardContent from "@mui/joy/CardContent";
+import Typography from "@mui/joy/Typography";
 
 export const Notebooks = () => {
   const [errMsg, setErrMsg] = useState('');
-  const {loading, data, error} = useQuery(USERNBS, {
+  const {loading, data} = useQuery(USERNBS, {
     onError: (e) => setErrMsg(e.message),
     fetchPolicy: 'cache-first'
   });
 
-  if (errMsg || error)
-    return <p style={{color: 'red'}}>{errMsg || error}</p>
-
   if (loading)
-    return <div>Loading....</div>
+    return <div style={{marginTop: '8rem'}}>Loading notebooks...</div>
 
   const nbs = data?.getUserNotebooks;
 
-  const widths = nbs.map(nb => nb.name.length);
-
   return (
     <>
-      <h1>Notebooks</h1>
-      <div className={'home-select'}>
+      <h1 style={{marginTop: '8rem'}}>Your Notebooks</h1>
+      <Grid
+        container
+        spacing={{ xs: 2, md: 3 }}
+        columns={{ xs: 8}}
+        sx={{ flexGrow: 1, width: '90%' }}
+        justifyContent="center"
+      >
         {
           nbs.map((nb, idx) => {
             return (
-              <div key={idx}>
-                <NavLink to={`/notebooks/${nb._id}`}>
-                  <button
-                    className={'hoverbtn'}
-                    style={{
-                      width: Math.max(...widths) + 150,
-                      marginBottom: '0.75rem'
+              <Grid xs={2} key={idx}>
+                <NavLink to={`/documents/${nb._id}`}>
+                  <Card
+                    variant="outlined"
+                    sx={{
+                      bgcolor: 'black',
                     }}
                   >
-                    {nb.name}
-                    <br/>
-                    <cite>
-                      {nb.date}
-                    </cite>
-                  </button>
+                    <CardContent>
+                      <Typography
+                        level="title-md"
+                        sx={{
+                          color: 'white'
+                        }}
+                      >
+                        {nb.name.length < 20 ? nb.name : `${nb.name.slice(0,17)}...`}
+                      </Typography>
+                      <Typography  sx={{color: 'grey'}}>
+                        {nb.date}
+                      </Typography>
+                    </CardContent>
+                  </Card>
                 </NavLink>
-              </div>
+              </Grid>
             )
           })
         }
-      </div>
+      </Grid>
     </>
   )
 }

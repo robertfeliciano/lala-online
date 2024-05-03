@@ -7,10 +7,14 @@ import {Delete} from './Delete';
 import CircularProgress from "@mui/joy/CircularProgress";
 import Textarea from '@mui/joy/Textarea';
 import Input from '@mui/joy/Input';
+import {ErrorModal} from "./ErrorModal";
+import {ErrorBar} from "./ErrorBar";
+import * as val from '../validation.js';
 
 export const Document = () => {
   const {id} = useParams();
   const [errMsg, setErrMsg] = useState('');
+  const [popUp, setPopUp] = useState('');
   const [completed, setCompleted] = useState(true);
   const {loading,data} = useQuery(GETDOC, {
       variables: {id},
@@ -76,12 +80,15 @@ export const Document = () => {
   const [timeTaken, setTimeTaken] = useState('');
 
   const runLala = (e) => {
-    const input = document.getElementById('lala-input')?.value;
-    if (!input) {
-      // TODO show errormodal or snackbar
-      setErrMsg('must provide some input to run!');
+    e.preventDefault();
+    let input = document.getElementById('lala-input')?.value;
+    try {
+      input = val.checkString(input, 'file content');
+    } catch(err) {
+      setPopUp(err);
       return;
     }
+    setPopUp('');
     const tick = performance.now();
     const interpreted = process_string(input);
     const tock = performance.now();
@@ -91,28 +98,41 @@ export const Document = () => {
 
   if (loading)
     return (
-      <div>
-        Loading...
-      </div>
+      <div style={{marginTop: '8rem'}}>Loading document...</div>
     );
-  // TODO add errormodal popup or snackbar
   if (errMsg) {
     return (
-      <div>
-        {errMsg};
-      </div>
-    )
+      <ErrorModal error={errMsg}/>
+    );
   }
 
   const doc = data?.getDocumentById;
 
+  if (!doc)
+    return (
+      <ErrorModal error={errMsg}/>
+    );
 
   const onClickSave = (e) => {
     e.preventDefault();
     setCompleted(false);
-    // TODO error check....
-    const name = document.getElementById('file-name')?.value;
-    const file = document.getElementById('lala-input')?.value;
+    let name = document.getElementById('file-name')?.value;
+    try {
+      name = val.checkString(name, 'file name');
+    } catch(e) {
+      setCompleted(true);
+      setPopUp(e);
+      return;
+    }
+    let file = document.getElementById('lala-input')?.value;
+    try {
+      file = val.checkString(file, 'file content');
+    } catch(e) {
+      setCompleted(true);
+      setPopUp(e);
+      return;
+    }
+    setPopUp('');
     const id = doc._id;
     const date = new Date();
     const variables = {name, file, date, id};
@@ -132,9 +152,7 @@ export const Document = () => {
           id={doc._id}
         />
       </div>
-      <div align={'center'}>
-        <br/>
-        <br/>
+      <div align={'center'} style={{marginTop: '8rem'}}>
         <Input
           id={'file-name'}
           defaultValue={doc.name}
@@ -161,14 +179,13 @@ export const Document = () => {
           slotProps={{input: {id: 'file-name'}}}
         />
         <cite>
-          {doc.date}
+          Last saved: {doc.date}
         </cite>
       </div>
       <div className="document">
         {/* Text editor */}
         <span className="text-editor" style={{paddingLeft: '0.5rem'}}>
           <Textarea
-            // slotProps={{ textarea: {height: '100vh' } }}
             style={{height: '100%', backgroundColor: 'black', color: 'white'}}
             sx={{
               '--Textarea-focusedInset': 'var(--any, )',
@@ -186,7 +203,6 @@ export const Document = () => {
           />
           <button onClick={runLala}>Run</button>
         </span>
-        {/* Terminal */}
         <span className="terminal">
           {output &&
             <>
@@ -211,6 +227,9 @@ export const Document = () => {
           }
         </span>
       </div>
+      {
+        popUp && <ErrorBar message={popUp}/>
+      }
     </>
   )
 }

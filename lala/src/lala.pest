@@ -46,7 +46,7 @@ dyadic = { (monadic | terms | ident ) ~ verb ~ expr }
 assn = { LET ~ ident ~ EQUAL ~ expr }
 
 matrix = {
-    (terms ~ SEMI)+ ~ terms ~ SEMI?
+    (terms ~ SEMI ~ NEWLINE?)+ ~ terms ~ SEMI?
 }
 
 vector = { terms ~ SEMI?}

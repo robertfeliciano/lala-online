@@ -9,27 +9,29 @@ import Grid from "@mui/joy/Grid";
 
 export const Documents =  () => {
   const [errMsg, setErrMsg] = useState('');
-  const {loading, data, error} = useQuery(USERDOCS, {
+  const {loading, data} = useQuery(USERDOCS, {
     onError: (e) => setErrMsg(e.message),
     fetchPolicy: 'cache-first'
   });
 
-  if (errMsg || error)
-    return <p style={{color: 'red'}}>{errMsg || error}</p>
-
   if (loading)
-    return <div>Loading....</div>
+    return <div style={{marginTop: '8rem'}}>Loading documents...</div>
 
   const docs = data?.getUserDocuments;
 
   return (
     <>
-      <h1>Documents</h1>
+      <h1 style={{marginTop: '8rem'}}>Your Documents</h1>
       <Grid
         container
         spacing={{ xs: 2, md: 3 }}
         columns={{ xs: 8}}
-        sx={{ flexGrow: 1 }}
+        sx={{
+          flexGrow: 1,
+          width: '90%',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
         justifyContent="center"
       >
         {
@@ -50,7 +52,7 @@ export const Documents =  () => {
                           color: 'white'
                         }}
                         >
-                        {doc.name}
+                        {doc.name.length < 20 ? doc.name : `${doc.name.slice(0,17)}...`}
                       </Typography>
                       <Typography  sx={{color: 'grey'}}>
                         {doc.date}

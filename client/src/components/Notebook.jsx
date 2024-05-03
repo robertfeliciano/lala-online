@@ -7,12 +7,17 @@ import {Delete} from './Delete';
 import CircularProgress from "@mui/joy/CircularProgress";
 import Textarea from '@mui/joy/Textarea';
 import Input from '@mui/joy/Input';
+import {ErrorModal} from "./ErrorModal";
+import {ErrorBar} from "./ErrorBar";
+import * as val from "../validation.js";
+
 
 export const Notebook = () => {
   const {id} = useParams();
 
   const [errMsg, setErrMsg] = useState('');
   const [completed, setCompleted] = useState(true);
+  const [popUp, setPopUp] = useState('');
   const [cells, setCells] = useState([]);
 
   const socketRef = useRef();
@@ -77,8 +82,6 @@ export const Notebook = () => {
     socketRef.current = io(endpt);
 
     socketRef.current.on('output', (({output}) => {
-      console.log(output)
-      console.log('hi' + cellIdx.current);
       const outLocation = document.getElementById(`lala-output-${cellIdx.current}`);
       outLocation.innerText = output;
     }));
@@ -87,30 +90,32 @@ export const Notebook = () => {
     };
   }, []);
 
-  const nb = data?.getNotebookById;
+  const nb = data?.getNotebookById
 
   if (loading || !socketRef.current)
     return (
-      <div>
-        Loading...
-      </div>
+      <div style={{marginTop: '8rem'}}>Loading notebook...</div>
     );
-  // TODO add errormodal popup or snackbar
-  if (errMsg || error)
+  if (errMsg)
     return (
-      <div>
-        {error.message || errMsg};
-      </div>
-    )
+      <ErrorModal error={errMsg}/>
+    );
 
-  // TODO maybe add time display as snackbar or something
+  if (!nb)
+    return (
+      <ErrorModal error={errMsg}/>
+    );
+
   const runCell = (idx) => {
-    console.log(idx)
-    console.log('before' + cellIdx.current)
     cellIdx.current = idx;
-    console.log('after' + cellIdx.current)
     let cell = document.getElementById(`lala-input-${cellIdx.current}`)?.value;
-    cell = cell.trim();
+    try {
+      cell = val.checkString(cell, 'file content');
+    } catch(err) {
+      setPopUp(err);
+      return;
+    }
+    setPopUp('');
     if (!cell || cell === ''){
       console.log('ERROR CHECK -> cell must contain valid lala')
     }
@@ -128,7 +133,16 @@ export const Notebook = () => {
   const onClickSave = (e) => {
     e.preventDefault();
     setCompleted(false);
-    const name = document.getElementById('nb-name')?.value;
+    let name = document.getElementById('nb-name')?.value;
+    try {
+      name = val.checkString(name, 'notebook name');
+    } catch(e) {
+      setCompleted(true);
+      setPopUp(e);
+      return;
+    }
+    setPopUp('');
+    // we can have empty cells
     const pairs = [];
     let idx = 0;
     let input = document.getElementById(`lala-input-${idx}`)?.value;
@@ -182,7 +196,7 @@ export const Notebook = () => {
         slotProps={{input: {id: 'nb-name'}}}
       />
       <cite>
-        {nb.date}
+        Last saved: {nb.date}
       </cite>
     </div>
     <br/>
@@ -235,5 +249,8 @@ export const Notebook = () => {
     >
       New Cell
     </button>
+    {
+      popUp && <ErrorBar message={popUp}/>
+    }
   </>)
 }
