@@ -140,11 +140,18 @@ export const Document = () => {
   }
 
   const handleKeyDown = (e) => {
-    if (e.ctrlKey && e.key === 'r') {
+    if (e.ctrlKey && e.key === 'Enter') {
       e.preventDefault();
       runLala(e);
     }
     else if (e.ctrlKey && e.key === 's') {
+      e.preventDefault();
+      onClickSave(e);
+    }
+  }
+
+  const handleSave = (e) => {
+    if (e.ctrlKey && e.key === 's') {
       e.preventDefault();
       onClickSave(e);
     }
@@ -165,7 +172,7 @@ export const Document = () => {
       </div>
       <div align={'center'} style={{marginTop: '8rem'}}>
         <Input
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleSave}
           id={'file-name'}
           defaultValue={doc.name}
           autoComplete={'off'}

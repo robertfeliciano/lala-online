@@ -159,6 +159,24 @@ export const Notebook = () => {
     saveNB({variables});
   }
 
+  const handleKeyDown = (e, idx) => {
+    if (e.ctrlKey && e.key === 'Enter') {
+      e.preventDefault();
+      runCell(idx);
+    }
+    else if (e.ctrlKey && e.key === 's') {
+      e.preventDefault();
+      onClickSave(e);
+    }
+  }
+
+  const handleSave = (e) => {
+    if (e.ctrlKey && e.key === 's') {
+      e.preventDefault();
+      onClickSave(e);
+    }
+  }
+
   return (<>
     <br/>
     <div className={'file-options'} style={{zIndex: 2}}>
@@ -173,6 +191,7 @@ export const Notebook = () => {
     </div>
     <div align={'center'} style={{marginTop: '5rem', zIndex: 1}}>
       <Input
+        onKeyDown={handleSave}
         defaultValue={nb.name}
         autoComplete={'off'}
         style={{
@@ -208,6 +227,8 @@ export const Notebook = () => {
           <div key={idx}>
             <div align={'center'}>
               <Textarea
+                id={`lala-joy-input-${idx}`}
+                onKeyDown={(e) => handleKeyDown(e, idx)}
                 defaultValue={input}
                 minRows={6}
                 aria-label={`input-${idx}`}
