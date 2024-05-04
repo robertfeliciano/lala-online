@@ -4,13 +4,14 @@ use anyhow::{anyhow, Error};
 use std::fmt::Display;
 
 #[derive(Clone, Debug)]
-pub enum LalaType {
+pub enum LalaType<'a> {
     Integer(i32),
     Double(f64),
     Matrix(Matrix),
+    Fun((String, Vec<AstNode<'a>>, Vec<AstNode<'a>>)),
 }
 
-impl Display for LalaType {
+impl Display for LalaType<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             LalaType::Integer(i) => write!(f, "{}", i.to_string())?,
@@ -28,6 +29,24 @@ impl Display for LalaType {
                     writeln!(f, "]")?;
                 }
             }
+            LalaType::Fun((name, param_list, _body)) => {
+                writeln!(f, "FUN {name}")?;
+                writeln!(
+                    f,
+                    "params: [{:?}]",
+                    param_list
+                        .iter()
+                        .map(|node| {
+                            if let AstNode::Ident(id) = node {
+                                format!("{id} ")
+                            } else {
+                                "_".to_string() // Placeholder for other AstNode variants
+                            }
+                        })
+                        .collect::<Vec<String>>()
+                )?;
+            }
+
         };
         Ok(())
     }

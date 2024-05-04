@@ -47,18 +47,21 @@ async fn on_connect(socket: SocketRef) {
     let env_clone = Arc::clone(&env);
 
     socket.on("run", move |s: SocketRef, Data::<Cell>(data)| {
-        let mut env = env_clone.lock().unwrap();
+        let mut env = env_clone.lock().unwrap().clone();
 
         info!("Received message from {}{}{}: {:?}", BLUE, s.id, DFLT, data);
 
-        let input = data.cell_text.trim();
-        let ast = parser::parse(input).unwrap();
+        let input = data.cell_text.leak();
+        let ast = parser::parse(input).unwrap().leak();
 
-        let response = interp(&ast, Some(&mut *env), true).unwrap();
+        let temp = ast.to_vec();
+
+        let response = interp(&temp, Some(&mut env), true).unwrap();
 
         let output = CellOutput {
             output: response
         };
+        
 
         info!("Sending message to {}{}{}: {:?}", BLUE, s.id, DFLT, output);
 
