@@ -35,8 +35,6 @@ const server = new ApolloServer({
 
 await server.start();
 
-// app.use(express.json());
-
 // all queries hit this first to get their fid
 app.use(async (req, res, next) => {
   const token = req.headers.authorization || req.query.token || '';
@@ -71,14 +69,6 @@ app.use(
       });
     }
 }));
-
-/**
- * TODO set up express app with sockets for real-time collaboration
- */
-
-// app.post('/api/repl', async (req, res) => {
-//   res.status(200).json({...req.body, output: "this is the output!!"});
-// })
 
 app.get('*', (_, res) => res.status(404).send('uh oh'))
 
