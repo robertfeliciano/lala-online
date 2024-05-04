@@ -45,6 +45,8 @@ pub enum AstNode<'a> {
     Ident(String),
     Matrix(Vec<Vec<AstNode<'a>>>),
     Command((&'a str, Vec<&'a str>)),
+    Fun((String, Vec<AstNode<'a>>, Vec<AstNode<'a>>)),
+    App((String, Vec<AstNode<'a>>)),
 }
 
 fn build_ast_from_term(pair: Pair<Rule>) -> AstNode {
@@ -168,6 +170,39 @@ fn build_ast_from_expr(pair: Pair<Rule>) -> Option<AstNode> {
             }
             Some(Matrix(mat))
         }
+        Rule::fun_decl => {
+            let mut pair = pair.into_inner();
+            let ident = pair.next()?;
+            let mut params: Vec<AstNode> = Vec::new();
+            let unparsed = pair.next()?.into_inner();
+            for param in unparsed {
+                if let Some(AstNode::Ident(id)) = build_ast_from_expr(param) {
+                    params.push(AstNode::Ident(id));
+                } else {
+                    continue;
+                }
+            }
+            let body = pair.next()?;
+            let parsed_body: Vec<AstNode> = body
+                .into_inner()
+                .map(build_ast_from_expr)
+                .collect::<Option<Vec<_>>>()?;
+
+            Some(Fun((
+                ident.as_span().as_str().to_string(),
+                params,
+                parsed_body,
+            )))
+        }
+        Rule::app => {
+            let mut pair = pair.into_inner();
+            let ident = pair.next()?;
+            let mut parsed_params = Vec::new();
+            while let Some(param) = pair.next() {
+                parsed_params.push(build_ast_from_expr(param)?);
+            }
+            Some(App((ident.as_span().as_str().to_string(), parsed_params)))
+        }
         bad_expr => panic!("Unexpected expression: {:?}", bad_expr),
     }
 }
@@ -178,8 +213,7 @@ pub fn parse(source: &str) -> Result<Vec<Box<AstNode>>, Error<Rule>> {
     let pairs = LalaParser::parse(Rule::program, source)?;
     for pair in pairs {
         match pair.as_rule() {
-            // TODO add rules for fun_decl and command
-            Rule::expr => {
+            Rule::fun_decl | Rule::expr => {
                 ast.push(Box::new(build_ast_from_expr(pair).unwrap()));
             }
             _ => {}

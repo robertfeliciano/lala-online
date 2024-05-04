@@ -33,9 +33,12 @@ expr = {
   | terms
 }
 
-app_param = {
+app_param = _{
 	ident
-	| term
+	| matrix
+    | monadic
+    | dyadic
+    | app
 }
 app = { ident ~ LPAREN ~ app_param* ~ RPAREN }
 

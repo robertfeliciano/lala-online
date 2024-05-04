@@ -51,8 +51,9 @@ async fn on_connect(socket: SocketRef) {
 
         info!("Received message from {}{}{}: {:?}", BLUE, s.id, DFLT, data);
 
-        let input = data.cell_text.trim();
-        let ast = parser::parse(input).unwrap();
+        let input = data.cell_text.trim().to_owned();
+        let input_str = input.as_str();
+        let ast = parser::parse(input_str).unwrap();
 
         let response = interp(&ast, Some(&mut *env), true).unwrap();
 
