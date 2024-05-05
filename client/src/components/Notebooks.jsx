@@ -33,7 +33,7 @@ export const Notebooks = () => {
           nbs.map((nb, idx) => {
             return (
               <Grid xs={2} key={idx}>
-                <NavLink to={`/documents/${nb._id}`}>
+                <NavLink to={`/notebooks/${nb._id}`}>
                   <Card
                     variant="outlined"
                     sx={{
