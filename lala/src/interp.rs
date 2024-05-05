@@ -288,13 +288,11 @@ where
     // Ok(LalaType::Ident("a".to_owned()))
 }
 
-pub fn interp<'a, 'b>(
-    ast: &'b Vec<Box<AstNode<'b>>>,
+pub fn interp<'a>(
+    ast: &'a [Box<AstNode<'_>>],
     map: Option<&mut HashMap<String, LalaType<'a>>>,
     tcp: bool,
 ) -> Result<String, Error>
-where
-    'b: 'a,
 {
     let mut binding = HashMap::new();
     #[allow(unused_mut)]
@@ -336,7 +334,6 @@ where
                 result = if tcp { format!("{}", temp) } else { result };
             }
             AstNode::Ident(var) => {
-                println!("{}", var);
                 let printable = format!("{}", env.get(var).unwrap());
                 // if tcp {
                 //     return Ok(printable);
@@ -362,7 +359,6 @@ where
             bad_line => return Ok(format!("Invalid line: {:?}", bad_line)),
         };
     }
-    println!("{}", result);
 
     Ok(result)
     // Ok("done".to_owned())
