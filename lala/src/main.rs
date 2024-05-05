@@ -52,9 +52,9 @@ async fn on_connect(socket: SocketRef) {
         info!("Received message from {}{}{}: {:?}", BLUE, s.id, DFLT, data);
 
         let input = data.cell_text.leak();
-        let ast = parser::parse(input).unwrap();
+        let ast = parser::parse(input).unwrap().leak();
 
-        let response = interp(&ast, Some(&mut *env), true).unwrap();
+        let response = interp(ast, Some(&mut *env), true).unwrap();
 
         let output = CellOutput {
             output: response
