@@ -1,20 +1,24 @@
 use axum::routing::get;
-use socketioxide::{extract::{Data, SocketRef}, SocketIo};
+use interp::interp;
+use socketioxide::{
+    extract::{Data, SocketRef},
+    SocketIo,
+};
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
 use tracing::info;
 use tracing_subscriber::FmtSubscriber;
-use std::sync::{Arc, Mutex};
-use std::collections::HashMap;
-use interp::interp;
 use types::LalaType;
 
 mod commands;
 mod interp;
-mod parser;
 mod matrix;
+mod parser;
 mod types;
 
+const  RED: &str = "\x1b[31m";
 const BLUE: &str = "\x1B[34m";
 const DFLT: &str = "\x1B[37m";
 
@@ -31,7 +35,7 @@ impl std::fmt::Display for Cell {
 
 #[derive(Debug, serde::Serialize)]
 struct CellOutput {
-    output: String, 
+    output: String,
 }
 
 impl std::fmt::Display for CellOutput {
@@ -52,14 +56,32 @@ async fn on_connect(socket: SocketRef) {
         info!("Received message from {}{}{}: {:?}", BLUE, s.id, DFLT, data);
 
         let input = data.cell_text.leak();
-        let ast = parser::parse(input).unwrap().leak();
 
-        let response = interp(ast, Some(&mut *env), true).unwrap();
+        let ast = match parser::parse(input) {
+            Ok(tree) => tree.leak(),
+            Err(e) => {
+                let output = CellOutput { output: e.to_string() };
 
-        let output = CellOutput {
-            output: response
-        };
+                info!("{}Parse error{} {}{}{}: {:?}", RED, DFLT, BLUE, s.id, DFLT, output);
         
+                let _ = s.emit("output", output);
+                return;
+            }
+        };
+
+        let response = match interp(ast, Some(&mut *env), true) {
+            Ok(interpreted) => interpreted,
+            Err(e) => {
+                let output = CellOutput { output: e.to_string() };
+
+                info!("{}Error{} {}{}{}: {:?}", RED, DFLT, BLUE, s.id, DFLT, output);
+        
+                let _ = s.emit("output", output);
+                return;
+            }
+        };
+
+        let output = CellOutput { output: response };
 
         info!("Sending message to {}{}{}: {:?}", BLUE, s.id, DFLT, output);
 
@@ -76,7 +98,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     io.ns("/", on_connect);
 
     let app = axum::Router::new()
-        .route("/", get(|| async { "This is not the webpage you are looking for..." }))
+        .route(
+            "/",
+            get(|| async { "This is not the webpage you are looking for..." }),
+        )
         .layer(
             ServiceBuilder::new()
                 .layer(CorsLayer::permissive())

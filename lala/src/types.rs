@@ -46,7 +46,6 @@ impl Display for LalaType<'_> {
                         .collect::<Vec<String>>()
                 )?;
             }
-
         };
         Ok(())
     }

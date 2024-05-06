@@ -5,10 +5,13 @@ use anyhow::{anyhow, Error};
 use std::{collections::HashMap, ops::Deref};
 
 #[inline]
-fn get_value<'a>(map: &mut HashMap<String, LalaType<'a>>, key: &'a String) -> LalaType<'a> {
+fn get_value<'a>(
+    map: &mut HashMap<String, LalaType<'a>>,
+    key: &'a String,
+) -> Result<LalaType<'a>, Error> {
     match map.get(key) {
-        Some(val) => val.clone(),
-        None => panic!("Key not found in the hashmap: {}", key),
+        Some(val) => Ok(val.clone()),
+        None => Err(anyhow!("Key not found in the hashmap: {}", key)),
     }
 }
 
@@ -17,7 +20,7 @@ fn eval_expr<'a, 'b>(
     env: &mut HashMap<String, LalaType<'a>>,
     expr: &'b AstNode<'b>,
     func: &str,
-) -> LalaType<'a>
+) -> Result<LalaType<'a>, Error>
 where
     'b: 'a,
 {
@@ -25,8 +28,8 @@ where
         AstNode::Ident(id) => get_value(env, id),
         AstNode::MonadicOp { verb, expr } => eval_monadic_op(expr, env, verb),
         AstNode::DyadicOp { verb, lhs, rhs } => eval_dyadic_op(lhs, rhs, env, verb),
-        AstNode::Matrix(m) => LalaType::Matrix(construct_matrix(m).unwrap()),
-        _ => panic!("Can only call {} on a matrix.", func),
+        AstNode::Matrix(m) => Ok(LalaType::Matrix(construct_matrix(m)?)),
+        _ => Err(anyhow!("error processing {func} consult the docs.")),
     }
 }
 
@@ -34,22 +37,37 @@ fn eval_monadic_op<'a, 'expr>(
     expr: &'expr AstNode<'expr>,
     env: &mut HashMap<String, LalaType<'a>>,
     verb: &'a MonadicVerb,
-) -> LalaType<'a>
+) -> Result<LalaType<'a>, Error>
 where
     'expr: 'a,
 {
     let func = verb.to_string();
-    let matrix = match eval_expr(env, expr, &func) {
+    let matrix = match eval_expr(env, expr, &func)? {
         LalaType::Matrix(mat) => mat,
-        _ => panic!("Can only call {func} on a matrix."),
+        _ => {
+            return Err(anyhow!(
+                "monadic op {} cna only be used on a matrix",
+                verb.to_string()
+            ))
+        }
     };
-    match verb {
-        MonadicVerb::Inverse => LalaType::Matrix(matrix.inverse()),
+    Ok(match verb {
+        MonadicVerb::Inverse => {
+            match matrix.inverse() {
+                Ok(result) => LalaType::Matrix(result),
+                Err(e) => return Err(e),
+            }
+        },
         MonadicVerb::Rank => LalaType::Integer(matrix.rank()),
         MonadicVerb::RREF => LalaType::Matrix(matrix.rref()),
         MonadicVerb::Transpose => LalaType::Matrix(matrix.transpose()),
-        MonadicVerb::Determinant => LalaType::Double(matrix.det()),
-    }
+        MonadicVerb::Determinant => {
+            match matrix.det() {
+                Ok(result) => LalaType::Double(result),
+                Err(e) => return Err(e),
+            }
+        },
+    })
 }
 
 fn eval_dyadic_op<'a, 'lhs, 'rhs>(
@@ -57,27 +75,42 @@ fn eval_dyadic_op<'a, 'lhs, 'rhs>(
     rhs: &'rhs AstNode<'rhs>,
     env: &mut HashMap<String, LalaType<'a>>,
     verb: &'a DyadicVerb,
-) -> LalaType<'a>
+) -> Result<LalaType<'a>, Error>
 where
     'lhs: 'a,
     'rhs: 'a,
 {
     let func = verb.to_string();
-    let leftside = if let LalaType::Matrix(left) = eval_expr(env, lhs, &func) {
+    let leftside = if let LalaType::Matrix(left) = eval_expr(env, lhs, &func)? {
         left
     } else {
-        panic!("can only call {func} on a matrix");
+        return Err(anyhow!("can only call {func} on a matrix"));
     };
-    let rightside = if let LalaType::Matrix(right) = eval_expr(env, rhs, &func) {
+    let rightside = if let LalaType::Matrix(right) = eval_expr(env, rhs, &func)? {
         right
     } else {
-        panic!("can only call {func} on a matrix");
+        return Err(anyhow!("can only call {func} on a matrix"));
     };
-    match verb {
-        DyadicVerb::Dot => LalaType::Matrix(leftside.dot(rightside.clone())),
-        DyadicVerb::Plus => LalaType::Matrix(leftside.combine(rightside, |a, b| a + b)),
-        DyadicVerb::Times => LalaType::Matrix(leftside.combine(rightside, |a, b| a * b)),
-    }
+    Ok(match verb {
+        DyadicVerb::Dot => {
+            match leftside.dot(rightside.clone()) {
+                Ok(m) => LalaType::Matrix(m),
+                Err(e) => return Err(e),
+            }
+        },
+        DyadicVerb::Plus => {
+            match leftside.combine(rightside, |a, b| a + b) {
+                Ok(result) => LalaType::Matrix(result),
+                Err(e) => return Err(e),
+            }
+        },
+        DyadicVerb::Times => {
+            match leftside.combine(rightside, |a, b| a * b) {
+                Ok(result) => LalaType::Matrix(result),
+                Err(e) => return Err(e),
+            }
+        },
+    })
 }
 
 fn eval_assignment<'a, 'b>(
@@ -99,24 +132,28 @@ where
             }
         }
         AstNode::Ident(rhs_ident) => {
-            match env.insert(ident.to_string(), env.get(rhs_ident).unwrap().clone()) {
+            let val = match env.get(rhs_ident) {
+                Some(v) => v,
+                None => return Err(anyhow!("{rhs_ident} referenced before definition."))
+            };
+            match env.insert(ident.to_string(), val.clone()) {
                 _ => Ok(()),
             }
         }
         AstNode::Matrix(v) => {
-            let mat = construct_matrix(v).unwrap();
+            let mat = construct_matrix(v)?;
             match env.insert(ident.to_string(), LalaType::Matrix(mat)) {
                 _ => Ok(()),
             }
         }
         AstNode::MonadicOp { verb, expr } => {
-            let result = eval_monadic_op(expr, env, verb);
+            let result = eval_monadic_op(expr, env, verb)?;
             match env.insert(ident.to_string(), result) {
                 _ => Ok(()),
             }
         }
         AstNode::DyadicOp { verb, lhs, rhs } => {
-            let result = eval_dyadic_op(lhs, rhs, env, verb);
+            let result = eval_dyadic_op(lhs, rhs, env, verb)?;
             match env.insert(ident.to_string(), result) {
                 _ => Ok(()),
             }
@@ -127,9 +164,9 @@ where
                 Err(e) => return Err(e),
             };
             match env.insert(ident.to_string(), result) {
-                _ => Ok(())
+                _ => Ok(()),
             }
-        },
+        }
         _ => Err(anyhow!("interpreter error!")),
     }
 }
@@ -202,15 +239,15 @@ where
             AstNode::Integer(int) => LalaType::Integer(*int),
             AstNode::DoublePrecisionFloat(d) => LalaType::Double(*d),
             AstNode::MonadicOp { verb, expr } => {
-                eval_monadic_op(&expr, &mut (temp_env.clone()), &verb)
+                eval_monadic_op(&expr, &mut (temp_env.clone()), &verb)?
             }
             AstNode::DyadicOp { verb, lhs, rhs } => {
-                eval_dyadic_op(&lhs, &rhs, &mut (temp_env.clone()), &verb)
+                eval_dyadic_op(&lhs, &rhs, &mut (temp_env.clone()), &verb)?
             }
-            AstNode::Ident(i) => {
-                match function_scope.get(i) {
-                    Some(val) => val.clone(),
-                    None => { return Err(anyhow!("identifer {i} referenced before definition")); },
+            AstNode::Ident(i) => match function_scope.get(i) {
+                Some(val) => val.clone(),
+                None => {
+                    return Err(anyhow!("identifer {i} referenced before definition"));
                 }
             },
             AstNode::Matrix(m) => {
@@ -247,15 +284,22 @@ where
     // function body can only contain assignment of variables and functions
     for expr in body[0..body.len() - 1].iter() {
         match expr {
-            AstNode::Assignment { ident, expr } =>
+            AstNode::Assignment { ident, expr } => {
                 match eval_assignment(ident, expr, &mut function_scope) {
                     Ok(_) => (),
-                    Err(e) => { return Err(e); },
-                },
+                    Err(e) => {
+                        return Err(e);
+                    }
+                }
+            }
             AstNode::Fun((name, params, body)) => {
                 interp_fun(name, params, body, &mut function_scope)
-            },
-            _ => { return Err(anyhow!("function body only allows assigment and function declarations")); }
+            }
+            _ => {
+                return Err(anyhow!(
+                    "function body only allows assigment and function declarations"
+                ));
+            }
         }
     }
 
@@ -271,29 +315,23 @@ where
 
     let final_result = match last_expr {
         // FUNCTIONS MUST END WITH IDENTIFIERS AS THE RETURN VALUE
-        AstNode::Ident(id) => {
-            match function_scope.get(&id) {
-                Some(val) => val,
-                None => todo!(),
-            }
+        AstNode::Ident(id) => match function_scope.get(&id) {
+            Some(val) => val,
+            None => todo!(),
         },
-        _ => { return Err(anyhow!("return statement must only be an identifier")); }
+        _ => {
+            return Err(anyhow!("return statement must only be an identifier"));
+        }
     };
 
     Ok(final_result.clone())
-
-    // let cloned_result = final_result.clone();
-    // Ok(cloned_result)
-
-    // Ok(LalaType::Ident("a".to_owned()))
 }
 
 pub fn interp<'a>(
     ast: &'a [Box<AstNode<'_>>],
     map: Option<&mut HashMap<String, LalaType<'a>>>,
     tcp: bool,
-) -> Result<String, Error>
-{
+) -> Result<String, Error> {
     let mut binding = HashMap::new();
     #[allow(unused_mut)]
     let mut env: &mut HashMap<String, LalaType> = match map {
@@ -306,11 +344,7 @@ pub fn interp<'a>(
     for node in ast {
         let _ = match node.deref() {
             AstNode::Assignment { ident, expr } => {
-                let _ = eval_assignment(ident, expr, env);
-                // if tcp {
-                //     return Ok(format!("{}", env.get(ident).unwrap()));
-                // }
-                // return Ok("".to_owned());
+                let _ = eval_assignment(ident, expr, env)?;
                 result = if tcp {
                     format!("{}", env.get(ident).unwrap())
                 } else {
@@ -318,28 +352,19 @@ pub fn interp<'a>(
                 };
             }
             AstNode::MonadicOp { verb, expr } => {
-                let temp = eval_monadic_op(expr, env, verb);
-                // if tcp {
-                //     return Ok(result.to_string());
-                // }
-                // return Ok("".to_owned());
-                result = if tcp { format!("{}", temp) } else { result };
+                let res = eval_monadic_op(expr, env, verb)?;
+                result = if tcp { format!("{}", res) } else { result };
             }
             AstNode::DyadicOp { verb, lhs, rhs } => {
-                let temp = eval_dyadic_op(lhs, rhs, env, verb);
-                // if tcp {
-                //     return Ok(result.to_string());
-                // }
-                // return Ok("".to_owned());
-                result = if tcp { format!("{}", temp) } else { result };
+                let res = eval_dyadic_op(lhs, rhs, env, verb)?;
+                result = if tcp { format!("{}", res) } else { result };
             }
             AstNode::Ident(var) => {
-                let printable = format!("{}", env.get(var).unwrap());
-                // if tcp {
-                //     return Ok(printable);
-                // }
-                // return Ok(printable);
-                result = printable;
+                let value = match env.get(var) {
+                    Some(v) => v,
+                    None => return Err(anyhow!("{var} referenced before definition."))
+                };
+                result = format!("{}", value);
             }
             AstNode::Command((cmd, cmd_params)) => {
                 let temp = eval_cmd(*cmd, cmd_params, env);
@@ -347,19 +372,17 @@ pub fn interp<'a>(
             }
             AstNode::Fun((name, params, body)) => {
                 interp_fun(name, params, body, env);
+                result = format!("fun {name} added to env");
             }
             AstNode::App((name, params)) => {
                 result = match interp_app(name, params, &env.clone()) {
                     Ok(evaluated) => evaluated.to_string(),
-                    Err(e) => return Err(e)
+                    Err(e) => return Err(e),
                 }
-                // result = interp_app(name, params, &mut env);
-
             }
             bad_line => return Ok(format!("Invalid line: {:?}", bad_line)),
         };
     }
 
     Ok(result)
-    // Ok("done".to_owned())
 }
