@@ -222,7 +222,7 @@ fn build_ast_from_expr(pair: Pair<Rule>) -> Option<AstNode> {
             }
             Some(App((ident.as_span().as_str().to_string(), parsed_params)))
         }
-        bad_expr => None
+        _bad_expr => None
     }
 }
 
