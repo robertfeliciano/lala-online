@@ -55,17 +55,13 @@ const SocialSignIn = () => {
   }
 
   return (
-    <div>
-      <Typography component="div" variant="h4">
+    <div style={{marginTop: '20rem'}}>
+      <Typography component="div" level="h2" sx={{color: 'white'}}>
         Welcome to Lala Online.
       </Typography>
       <br/>
       <FormControl style={{alignItems: 'center'}}>
         <SocialButton social="Google" clickHandler={doGoogleSignIn}></SocialButton>
-      </FormControl>
-      <br/>
-      <FormControl style={{alignItems: 'center'}}>
-        <SocialButton social="Github" clickHandler={doGithubSigIn}></SocialButton>
       </FormControl>
     </div>
   );

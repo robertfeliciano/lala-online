@@ -26,7 +26,11 @@ export const Notebooks = () => {
         container
         spacing={{ xs: 2, md: 3 }}
         columns={{ xs: 8}}
-        sx={{ flexGrow: 1, width: '90%' }}
+        sx={{
+          flexGrow: 1,
+          width: '100%',
+          paddingLeft: '20px'
+        }}
         justifyContent="center"
       >
         {

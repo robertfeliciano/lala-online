@@ -9,7 +9,8 @@ import {AuthContext} from './AuthContext';
 import {Navbar} from "./Navbar";
 import {Notebook} from "./Notebook";
 import {Documents} from "./Documents";
-import {Notebooks} from "./Notebooks.jsx";
+import {Notebooks} from "./Notebooks";
+import {Guide} from "./Guide"
 
 const App = () => {
 
@@ -34,6 +35,9 @@ const App = () => {
           </Route>
           <Route path="/documents/:id" element={<PrivateRoute />}>
             <Route path="/documents/:id" element={<Document />} />
+          </Route>
+          <Route path="/guide" element={<PrivateRoute />}>
+            <Route path="/guide" element={<Guide />} />
           </Route>
           <Route path="/signin" element={<SocialSignIn />} />
         </Routes>

@@ -28,9 +28,10 @@ export const Documents =  () => {
         columns={{ xs: 8}}
         sx={{
           flexGrow: 1,
-          width: '90%',
+          width: '100%',
           justifyContent: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
+          paddingLeft: '20px'
         }}
         justifyContent="center"
       >

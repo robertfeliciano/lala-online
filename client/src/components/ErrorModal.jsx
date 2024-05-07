@@ -12,6 +12,9 @@ export const ErrorModal = ({error}) => {
     <Modal
       open={open}
       aria-labelledby={'error-modal'}
+      onClose={(_event, _reason) => {
+        setOpen(false)
+      }}
     >
       <ModalDialog
         size={'md'}
