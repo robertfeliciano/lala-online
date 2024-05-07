@@ -62,7 +62,7 @@ tower = "0.4"
 ```
 Just replace the older, shorter dependency list with this one. 
 
-Now, we are going to build our socketio Rust server for the Lala notebooks. Simply run `cargo build`. 
+Now, we are going to build our socketio Rust server for the Lala notebooks. Simply run `cargo build --release`. 
 
 If you are interested in why we couldn't just build the socketio server first and then compile the interpreter to wasm,
 I will briefly explain. If we first compile the server, then remove dependencies from the `Cargo.toml` file, then compile
@@ -144,3 +144,6 @@ Run these commands:
 You'll see a lot of output on your screen; that's because we've launched our mongo server, react client, and lala socketio server all at once.
 
 To get started using Lala Online, consult the Guide page once you sign in!
+
+If you like, you can signin using the Test User credentials provided in a Markdown file called
+`TestUserCreds.txt`.
