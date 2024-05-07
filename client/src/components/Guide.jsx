@@ -78,9 +78,13 @@ export const Guide = () => {
       return;
     }
     setPopUp('');
-    const interpreted = process_string(input);
-    setOutput(interpreted);
-    setOpen(true);
+    try {
+      const interpreted = process_string(input);
+      setOutput(interpreted);
+      setOpen(true);
+    } catch(_){
+      alert(`Something went wrong with the interpreter. Please double check your input. If the issue persists and you are sure you aren't doing anything wrong, try again later.`);
+    }
   }
 
   const handleKeyDown = (e) => {
@@ -118,7 +122,7 @@ export const Guide = () => {
       <Typography sx={{color: 'white'}} style={{marginTop: '8rem'}} level={'h1'}>
         A Guide to Lala
       </Typography>
-      <div className="row">
+      <div className="row" position={'relative'}>
         <div className="half">
           <DefaultTypography>
             Lala is a programming language specializing in matrix operations.
@@ -211,7 +215,16 @@ export const Guide = () => {
           </DefaultTypography>
 
         </div>
-        <div className="half" style={{width: '50rem', height: '40rem', position: 'fixed', left: 875}}>
+        <div
+          className="half"
+          style={{
+            height: '40rem',
+            position: 'sticky',
+            marginLeft: '1rem',
+            marginRight: '1rem',
+            top: '8rem'
+          }}
+        >
           <Textarea
             onKeyDown={handleKeyDown}
             style={{height: '100%', backgroundColor: 'black', color: 'white'}}
