@@ -1,0 +1,58 @@
+.guide body,
+.guide h1,
+.guide h2,
+.guide h3,
+.guide p,
+.guide pre {
+    margin: 0;
+    padding: 0;
+}
+
+.guide body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+
+.guide p {
+    margin-bottom: 1em;
+    text-align: left;
+    padding-left: 2em;
+}
+
+.guide h1 {
+    font-size: 24px;
+    /*margin-bottom: 20px;*/
+}
+
+.guide h2 {
+    font-size: 20px;
+    /*margin-bottom: 15px;*/
+}
+
+.guide h3 {
+    font-size: 16px;
+    /*margin-bottom: 10px;*/
+}
+
+
+/* code blocks */
+.guide pre {
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 15px;
+    overflow-x: auto;
+}
+
+.guide code {
+    font-family: Consolas, Monaco, 'Andale Mono', monospace;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+.row .half {
+    width: 50%;
+}

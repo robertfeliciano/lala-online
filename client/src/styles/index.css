@@ -110,7 +110,7 @@ nav {
   margin-top: 2%;
   display: flex;
 }
-.document > .text-editor, .terminal {
+.document > .text-editor, .terminal, .guide, .examples {
   width: 50%;
   height: 100%;
 }
@@ -118,6 +118,7 @@ nav {
   width: 90%;
   height: 90%;
   padding: 0;
+  overflow-y: scroll;
 }
 .text-editor button {
   position: absolute;
@@ -139,4 +140,23 @@ nav {
   background-color: #282828;
   color: white;
   border-color: #282828;
+}
+
+.split {
+  height: 100%;
+  width: 50%;
+  position: absolute;
+  overflow-x: hidden;
+}
+
+.left {
+  left: 0;
+  overflow-y: visible;
+  /*overflow-y: hidden;*/
+}
+
+.right {
+  right: 0;
+  justify-content: left;
+  /*overflow-y: hidden;*/
 }
