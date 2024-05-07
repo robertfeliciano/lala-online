@@ -156,7 +156,7 @@ impl Matrix {
     pub fn inverse(&self) -> Result<Self, Error> {
         let d = self.det()?;
         if d == 0.0 {
-            return Err(anyhow!("Inverse is zero!"));
+            return Err(anyhow!("Determinant is zero! No inverse."));
         }
 
         let mut inv = Self::new(self.rows, self.cols);
