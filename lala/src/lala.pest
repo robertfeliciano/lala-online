@@ -16,7 +16,7 @@ ARROW = _{"=>"}
 
 SEMI = _{";"}
 
-params = {ident+}
+params = {ident*}
 body = {(stmt ~ NEWLINE*)+ }
 fun_decl = {
   FUN ~ ident ~ EQUAL ~ LPAREN ~ params ~ RPAREN ~ ARROW ~
