@@ -89,11 +89,15 @@ export const Document = () => {
       return;
     }
     setPopUp('');
-    const tick = performance.now();
-    const interpreted = process_string(input);
-    const tock = performance.now();
-    setTimeTaken(`Lala took ${(tock - tick).toFixed(2)} milliseconds.`);
-    setOutput(interpreted);
+    try {
+      const tick = performance.now();
+      const interpreted = process_string(input);
+      const tock = performance.now();
+      setTimeTaken(`Lala took ${(tock - tick).toFixed(2)} milliseconds.`);
+      setOutput(interpreted);
+    } catch(_) {
+      alert(`Something went wrong with the interpreter. Please double check your input. If the issue persists and you are sure you aren't doing anything wrong, try again later.`);
+    }
   }
 
   if (loading)
@@ -133,15 +137,10 @@ export const Document = () => {
       return;
     }
     setPopUp('');
-    try {
-      const tick = performance.now();
-      const interpreted = process_string(input);
-      const tock = performance.now();
-      setTimeTaken(`Lala took ${(tock - tick).toFixed(2)} milliseconds.`);
-      setOutput(interpreted);
-    } catch(_) {
-      alert(`Something went wrong with the interpreter. Please double check your input. If the issue persists and you are sure you aren't doing anything wrong, try again later.`);
-    }
+    const id = doc._id;
+    const date = new Date();
+    const variables = {name, file, date, id};
+    saveDoc({variables});
   }
 
   const handleKeyDown = (e) => {
