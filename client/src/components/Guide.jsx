@@ -186,6 +186,8 @@ export const Guide = () => {
             Transpose: % a
             <br/>
             Determinant: det a
+            <br/>
+            Inverse: ? a
           </DefaultTypography>
           <DefaultTypography>
             Functions are cool. In Lala, functions are first class variables, meaning you can treat them as regular
