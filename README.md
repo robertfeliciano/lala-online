@@ -113,7 +113,9 @@ VITE_KERNEL_ENDPOINT|string|URL to the socketio server endpoint
 The first seven values come from Firebase. On the "Settings" page, scroll down and look at the code block. They can be copied and 
 pasted into this `.env` file in the exact order they appear.
 
-The second to last value, VITE_APP_BACKEND, will be provided by me: "http://127.0.0.1:4000/api/". Please don't change it.
+The second to last value, VITE_APP_BACKEND, will be provided by me: "http://127.0.0.1:4000/api/". Please insert this into the 
+`.env` file and please don't change it. If you must change it, go to `server/src/server.js` and change the port on line 75 and
+use that port here.
 
 The last value, "VITE_KERNEL_ENDPOINT" will be provided by me: "http://127.0.0.1:8080". Please use this one as the socketio server
 hosts itself on port 8080. If anything on your computer is running on port 8080, try killing it. If you can't, go to line 113 of 
