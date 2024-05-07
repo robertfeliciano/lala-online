@@ -102,7 +102,7 @@ fn parse_dyadic_verb<'a>(
         "@" => DyadicVerb::Dot,
         "++" => DyadicVerb::Plus,
         "**" => DyadicVerb::Times,
-        _ => panic!("Dyadic {} not supported (yet?)", pair.as_str()),
+        _ => return None
     };
     
     Some(AstNode::DyadicOp {
@@ -222,7 +222,7 @@ fn build_ast_from_expr(pair: Pair<Rule>) -> Option<AstNode> {
             }
             Some(App((ident.as_span().as_str().to_string(), parsed_params)))
         }
-        bad_expr => panic!("Unexpected expression: {:?}", bad_expr),
+        bad_expr => None
     }
 }
 
