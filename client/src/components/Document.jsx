@@ -35,6 +35,7 @@ export const Document = () => {
                 {
                   _id: updateDocument._id,
                   name: updateDocument.name,
+                  file: updateDocument.file,
                   date: updateDocument.date
                 },
                 ...getUserDocuments.filter(doc => doc._id !== updateDocument._id)
