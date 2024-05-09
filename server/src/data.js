@@ -136,40 +136,26 @@ export const getUserField = async (fid, field) => {
   if (exists)
     return (await client.lRange(key, 0, -1)).map(parseObj);
   const users = await userCollection();
-  const entries = await users.aggregate([
-    {
-      '$match': {
-        'firebaseId': `${fid}`
-      }
-    }, {
-      '$unwind': {
-        'path': `$${field}`
-      }
-    }, {
-      '$lookup': {
-        'from': `${field}`,
-        'localField': `${field}`,
-        'foreignField': '_id',
-        'as': 'result'
-      }
-    }, {
-      '$replaceRoot': {
-        'newRoot': {
-          '$arrayElemAt': [
-            '$result', 0
-          ]
-        }
-      }
-    }, {
-      '$sort': {
-        'date': -1
-      }
-    }
-  ]).toArray();
-  if (!entries)
-    ISE('could not get user quick data')
-  await setArrayInRedis(key, entries)
-  return entries;
+  if (field === 'documents') {
+    const docs = await documentCollection();
+    const entries = await docs.find(
+      { ownerFid: fid }
+    ).toArray();
+    if (!entries)
+      ISE('could not get user documents')
+    await setArrayInRedis(key, entries)
+    return entries;
+  }
+  else if (field === 'notebooks') {
+    const nbs = await notebookCollection();
+    const entries = await nbs.find(
+      { ownerFid: fid }
+    ).toArray();
+    if (!entries)
+      ISE('could not get user notebooks')
+    await setArrayInRedis(key, entries)
+    return entries;
+  }
 }
 
 export const newDocument = async (fid, name) => {
