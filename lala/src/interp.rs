@@ -205,14 +205,12 @@ fn interp_app<'a, 'b>(
 where
     'a: 'b,
 {
-    let temp_env = env.clone();
-    let (_, aliases_o, body_o) = match temp_env.get(name) {
+    let (_, aliases, body_o) = match env.get(name) {
         Some(LalaType::Fun((n, a, b))) => (n, a, b),
         _ => {
             return Err(anyhow!("Function {name} referenced before definition"));
         }
     };
-    let aliases = aliases_o.clone();
     if params.len() != aliases.len() {
         return Err(anyhow!(
             "{name} supplied incorrect number of arguments. Expected {}, found {}",
@@ -220,15 +218,15 @@ where
             params.len()
         ));
     }
-    let mut function_scope = temp_env.clone();
+    let mut function_scope = env.clone();
     for (provided_node, alias_node) in params.iter().zip(aliases.iter()) {
         // aliases are the parameter names in the function signature
         // we need to bind the value of the provided params in the function call to these aliases
         // for the scope of the function
 
         // get the identifier alias for the current parameter
-        let alias = match alias_node.clone() {
-            AstNode::Ident(i) => i,
+        let alias = match alias_node {
+            AstNode::Ident(i) => i.to_owned(),
             _ => {
                 return Err(anyhow!("how the hell"));
             }
@@ -239,10 +237,10 @@ where
             AstNode::Integer(int) => LalaType::Integer(*int),
             AstNode::DoublePrecisionFloat(d) => LalaType::Double(*d),
             AstNode::MonadicOp { verb, expr } => {
-                eval_monadic_op(&expr, &mut (temp_env.clone()), &verb)?
+                eval_monadic_op(&expr, &mut function_scope, &verb)?
             }
             AstNode::DyadicOp { verb, lhs, rhs } => {
-                eval_dyadic_op(&lhs, &rhs, &mut (temp_env.clone()), &verb)?
+                eval_dyadic_op(&lhs, &rhs, &mut function_scope, &verb)?
             }
             AstNode::Ident(i) => match function_scope.get(i) {
                 Some(val) => val.clone(),
@@ -259,8 +257,8 @@ where
             }
             AstNode::App((func_name, func_params)) => {
                 let temp =
-                    if let Ok(something) = interp_app(func_name, func_params, &temp_env.clone()) {
-                        something
+                    if let Ok(intermediate) = interp_app(func_name, func_params, &function_scope) {
+                        intermediate
                     } else {
                         return Err(anyhow!(
                             "issue applying function {func_name} as a parameter"
@@ -274,7 +272,7 @@ where
         };
 
         // add the value of the parameter under the alias for the function's scope
-        function_scope.insert(alias.clone(), provided);
+        function_scope.insert(alias, provided);
     }
 
     // now that the parameter values have been assigned, we just need to interpret the
@@ -304,19 +302,17 @@ where
     }
 
     let another_body = body_o.to_owned();
-    let last_expr_o = match another_body.last() {
-        Some(res) => res,
+    let last_expr = match another_body.last() {
+        Some(res) => res.to_owned(),
         None => {
             return Err(anyhow!("empty function body somehow!"));
         }
     };
 
-    let last_expr = last_expr_o.to_owned();
-
     let final_result = match last_expr {
         // FUNCTIONS MUST END WITH IDENTIFIERS AS THE RETURN VALUE
         AstNode::Ident(id) => match function_scope.get(&id) {
-            Some(val) => val,
+            Some(val) => val.to_owned(),
             None => todo!(),
         },
         _ => {
@@ -324,7 +320,7 @@ where
         }
     };
 
-    Ok(final_result.clone())
+    Ok(final_result)
 }
 
 pub fn interp<'a>(
