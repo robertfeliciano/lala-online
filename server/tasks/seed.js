@@ -13,8 +13,8 @@ const main = async () => {
 
     const newDoc = await docs.insertOne({
         ownerFid: newUser.firebaseId,
-        file: `
-let a = 1 0 0 ; 0 1 0 ; 0 0 1
+        file: 
+`let a = 1 0 0 ; 0 1 0 ; 0 0 1
 let b = 1 2 3 ; 4 5 6 ; 7 8 9
 let c = a @ b
 // c should equal b
@@ -26,8 +26,8 @@ c
     });
     const newDoc2 = await docs.insertOne({
         ownerFid: newUser.firebaseId,
-        file: `
-fun myFunction = (a b) => {
+        file: 
+`fun myFunction = (a b) => {
   let c = a @ b    // dot product
   let d = % c    // transpose
   let e = (? d) ** (2 1 3 ; 9 1 4 ; 8 1 7)    // inverse and elem-wise multiplication
@@ -59,8 +59,8 @@ z`,
     });
     const newNB2 = await nbs.insertOne({
         ownerFid: newUser.firebaseId,
-        pairs: [{ input: `
-fun coolFun = (p1 p2) => {
+        pairs: [{ input: 
+`fun coolFun = (p1 p2) => {
   let tmp = p1 @ p2
   let tmp = % tmp
   tmp
