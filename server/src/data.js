@@ -1,8 +1,7 @@
 import redis from 'redis';
 import {
   documents as documentCollection,
-  notebooks as notebookCollection,
-  users as userCollection
+  notebooks as notebookCollection
 } from '../config/mongoCollections.js';
 import * as val from './validation.js';
 import {GraphQLError} from "graphql";
@@ -135,7 +134,6 @@ export const getUserField = async (fid, field) => {
   const exists = await client.exists(key);
   if (exists)
     return (await client.lRange(key, 0, -1)).map(parseObj);
-  const users = await userCollection();
   if (field === 'documents') {
     const docs = await documentCollection();
     const entries = await docs.find(
@@ -159,7 +157,6 @@ export const getUserField = async (fid, field) => {
 }
 
 export const newDocument = async (fid, name) => {
-  const users = await userCollection();
   const docs  = await documentCollection();
   const insertedDoc = await docs.insertOne(
     {
@@ -171,11 +168,6 @@ export const newDocument = async (fid, name) => {
   );
   if (!insertedDoc)
     ISE('could not create new document. try again soon!');
-  const updatedUser = await users.findOneAndUpdate(
-    {firebaseId: fid},
-    {$push: {documents: insertedDoc.insertedId}},
-    {returnDocument: 'after'}
-  );
   const newDoc = await docs.findOne({_id: insertedDoc.insertedId});
   if (!newDoc)
     ISE('could not create new document. try again soon!');
@@ -185,7 +177,6 @@ export const newDocument = async (fid, name) => {
 }
 
 export const newNotebook = async (fid, name) => {
-  const users = await userCollection();
   const nbs  = await notebookCollection();
   const input = 'let a = 1 0 0 ; 0 1 0 ; 0 0 1';
   const output = '';
@@ -199,11 +190,6 @@ export const newNotebook = async (fid, name) => {
   );
   if (!insertedNb)
     ISE('could not create new notebook. try again soon!');
-  const updatedUser = await users.findOneAndUpdate(
-    {firebaseId: fid},
-    {$push: {notebooks: insertedNb.insertedId}},
-    {returnDocument: 'after'}
-  );
   const newNb = await nbs.findOne({_id: insertedNb.insertedId});
   if (!newNb)
     ISE('could not create new notebook. try again soon!');
@@ -293,15 +279,7 @@ export const updateSpecificCells = async (fid, id, name, indices, pairs) => {
 
 export const removeDocument = async (fid, id) => {
   id = checkId(id);
-  const users = await userCollection();
   const docs = await documentCollection();
-  const updatedUser = await users.findOneAndUpdate(
-    {firebaseId: fid},
-    {$pull: {documents: id}},
-    {returnDocument: 'after'}
-  );
-  if (!updatedUser)
-    ISE('could not remove document from user docs. try again soon!')
   const removedDoc = await docs.findOneAndDelete(
     {_id: id}
   );
@@ -318,15 +296,7 @@ export const removeDocument = async (fid, id) => {
 
 export const removeNotebook = async (fid, id) => {
   id = checkId(id);
-  const users = await userCollection();
   const nbs = await notebookCollection();
-  const updatedUser = await users.findOneAndUpdate(
-    {firebaseId: fid},
-    {$pull: {notebooks: id}},
-    {returnDocument: 'after'}
-  );
-  if (!updatedUser)
-    ISE('could not remove notebook from user docs. try again soon!')
   const removedNb = await nbs.findOneAndDelete(
     {_id: id}
   );
