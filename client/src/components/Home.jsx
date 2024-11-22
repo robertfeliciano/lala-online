@@ -13,6 +13,7 @@ export const Home = () => {
       <button
         style={{
           color: 'white',
+          backgroundColor: '#1a1a1a',
           marginBottom: '0.75rem',
           width: '12rem'
         }}
@@ -35,6 +36,8 @@ export const Home = () => {
     >
       What would you like to do?
     </Typography>
+    <MenuButton text={'Check Out the Guide'} handleClick={() => navigate('/guide')}/>
+    <br/>
     <MenuButton text={'New Document'} handleClick={() => setDocModal(true)}/>
     <br/>
     <MenuButton text={'New Notebook'} handleClick={() => setNoteModal(true)}/>
